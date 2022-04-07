@@ -1,0 +1,84 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "overrides": [
+        {
+            "excludedFiles": "*.spec.js",
+            "parserOptions": {
+                "ecmaVersion": 5
+            },
+            "files": [
+                "scripts/**/*.js",
+                "packages/**/*.js"
+            ],
+            "extends": [
+                "eslint:recommended",
+                "plugin:node/recommended"
+            ],
+            "rules": {
+                "no-unused-vars": [
+                    "warn"
+                ],
+                "no-process-exit": [
+                    "off"
+                ]
+            }
+        },
+        {
+            "excludedFiles": "*.spec.ts",
+            "files": [
+                "*.js",
+                "*.ts"
+            ],
+            "extends": [
+                "plugin:@typescript-eslint/recommended",
+                "prettier/@typescript-eslint",
+                "plugin:prettier/recommended"
+            ],
+            "rules": {
+                "@typescript-eslint/ban-types": [
+                    "off"
+                ],
+                "@typescript-eslint/no-empty-function": [
+                    "off"
+                ],
+                "@typescript-eslint/no-this-alias": [
+                    "error",
+                    {
+                        "allowDestructuring": true,
+                        "allowedNames": [
+                            "self",
+                            "context"
+                        ]
+                    }
+                ],
+                "@typescript-eslint/no-explicit-any": [
+                    "off"
+                    // "error",
+                    // {
+                    //     "ignoreRestArgs": true
+                    // }
+                ],
+                "prefer-rest-params": [
+                    "off"
+                ],
+                "@typescript-eslint/no-non-null-assertion": [
+                    "off"
+                ],
+                "@typescript-eslint/explicit-module-boundary-types": [
+                    "off"
+                ],
+                "@typescript-eslint/no-var-requires": [
+                    "off"
+                ],
+                "node/no-unpublished-require": [
+                    "off"
+                ]
+            }
+        }
+    ]
+}
