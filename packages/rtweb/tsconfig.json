@@ -9,7 +9,7 @@
     "preserveConstEnums": true,
     "rootDir": "src",
     "outDir": "build",
-    "lib": ["es6", "dom"],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "downlevelIteration": true
   },
   "exclude": ["test"],
