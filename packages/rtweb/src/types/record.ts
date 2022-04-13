@@ -1,6 +1,7 @@
-import { RecorderPlugin }  from '../plugin/recordPluginable'
+import { RecorderPlugin }  from '../record/pluginable'
 import { RecorderModule } from '../record'
 import { watchers } from '../record/watchers'
+import { eventWithTime } from 'rrweb/typings/types.d'
 
 interface RecordOptionsBase {
     context?: Window
@@ -27,26 +28,22 @@ export type WatcherArgs<T extends RecordData, WatchersInstance = any, Recorder =
 
 export type RecordEvent<T extends RecordData> = (e: T) => void
 
-export type RecordData = any
+export type RecordData = {
+    type: RecordType,
+    data: eventWithTime,
+    extras: any,
+    time: number,
+}
+
+export type RecordDbData = {
+    type: RecordType,
+    time: number,
+    [k: string]: any
+}
 
 export enum RecordType {
-    'HEAD',
-    'SNAPSHOT',
-    'WINDOW',
-    'SCROLL',
-    'MOUSE',
-    'DOM',
-    'FORM_EL',
-    'LOCATION',
-    'AUDIO',
-    'CANVAS',
-    'TERMINATE',
-    'FONT',
-    'PATCH',
-    'CUSTOM',
-    'WEBGL',
-    'CANVAS_SNAPSHOT',
-    'VIDEO'
+    'CLICK',
+    'INPUT'
 }
 
 export enum RecorderStatus {

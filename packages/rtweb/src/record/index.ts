@@ -1,7 +1,7 @@
 
  import { watchers, baseWatchers } from './watchers'
  import { logError, getTime, tempEmptyFn, tempEmptyPromise, delay } from '../utils'
- import { Pluginable } from '../plugin/recordPluginable';
+ import { Pluginable } from './pluginable';
  import { Watcher } from './watcher'
  import { RecordData, RecorderMiddleware, RecorderStatus, RecordInternalOptions, RecordOptions } from '../types'
  

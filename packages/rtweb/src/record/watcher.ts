@@ -29,13 +29,15 @@ export class Watcher<T extends RecordData> {
 
     public emitData(
         type: RecordType,
-        record: RecordData['data'],
+        record: RecordData['data'], // 原始rrweb的数据结构，用于分析和log，不保存db
+        extras: any, // 保存db的数据
         time = getTime(),
         callback?: (data: RecordData) => T
     ) {
         const data = {
             type,
             data: record,
+            extras,
             time
         } as RecordData
 

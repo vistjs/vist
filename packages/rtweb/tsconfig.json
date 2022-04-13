@@ -10,7 +10,8 @@
     "rootDir": "src",
     "outDir": "build",
     "lib": ["esnext", "dom", "dom.iterable"],
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["test"],
   "include": [

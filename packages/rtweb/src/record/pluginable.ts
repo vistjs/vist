@@ -1,7 +1,10 @@
-import { SyncHook } from 'tapable'
+import {
+	SyncHook,
+ } from 'tapable'
+
 import { RecordOptions } from '../types'
 import { logError } from '../utils'
-import { Watcher } from '../record/watcher'
+import { Watcher } from './watcher'
 
 export interface RecorderPlugin {
     apply(recorder: Pluginable): void
@@ -14,7 +17,10 @@ enum HookStatus {
     end = 'end'
 }
 
-type IHOOK = Record<HookStatus, SyncHook<any, any, any>>
+type HooksType = 'beforeRun' | 'run' | 'emit' | 'end'
+
+type IHOOK = Record<HooksType, SyncHook<any, any, any>>
+
 
 // 继承Pluginable后，在constructor要调用loadPlugins，通过 this.hooks.xx.call触发plugin
 export class Pluginable {
@@ -54,6 +60,7 @@ export class Pluginable {
     public plugin = (type: keyof IHOOK, cb: (data: any) => void) => {
         const name = this.hooks[type].constructor.name
         const method = /Async/.test(name) ? 'tapAsync' : 'tap'
+        // @ts-ignore
         this.hooks[type][method](type, cb)
     }
 
