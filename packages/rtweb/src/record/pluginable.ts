@@ -10,13 +10,6 @@ export interface RecorderPlugin {
     apply(recorder: Pluginable): void
 }
 
-enum HookStatus {
-    beforeRun = 'beforeRun',
-    run = 'run',
-    emit = 'emit',
-    end = 'end'
-}
-
 type HooksType = 'beforeRun' | 'run' | 'emit' | 'end'
 
 type IHOOK = Record<HooksType, SyncHook<any, any, any>>

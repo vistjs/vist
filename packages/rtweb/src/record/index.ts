@@ -30,14 +30,7 @@
  
  export class RecorderModule extends Pluginable {
      private static defaultRecordOpts = {
-         mode: 'default',
-         write: true,
-         keep: false,
-         audio: false,
-         video: false,
-         emitLocationImmediate: true,
          context: window,
-         rewriteResource: [],
          disableWatchers: []
      } as RecordOptions
      private defaultMiddleware: RecorderMiddleware[] = []
