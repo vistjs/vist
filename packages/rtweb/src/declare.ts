@@ -1,11 +1,12 @@
-import { RecordData } from './types'
+import { RecordDbData, ReplayData } from './types'
 
 declare global {
     interface Window {
         G_RECORD_OPTIONS: any
         G_RECORD_RELATED_ID: string
-        G_REPLAY_RECORDS: RecordData[]
+        G_REPLAY_RECORDS: RecordDbData[]
         G_REPLAY_STR_RECORDS: string
+        G_REPLAY_DATA: ReplayData
         Object: typeof Object
 
         HTMLElement: typeof HTMLElement

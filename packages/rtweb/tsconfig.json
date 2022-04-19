@@ -11,7 +11,8 @@
     "outDir": "build",
     "lib": ["esnext", "dom", "dom.iterable"],
     "downlevelIteration": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": true
   },
   "exclude": ["test"],
   "include": [

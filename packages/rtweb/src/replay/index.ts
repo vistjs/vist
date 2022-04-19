@@ -2,50 +2,30 @@
 
  import {
   logError,
-  debounce,
   logInfo,
   isDev,
   removeGlobalVariables,
   delay,
-  tempEmptyFn
-} from '../utils'
-import {
-  SnapshotRecord,
-  ReplayOptions,
-  RecordData,
-  RecordType,
-  ReplayInternalOptions,
-  HeadRecord
-} from '@timecat/share'
-import { waitStart, removeStartPage, showStartMask, ConnectProps, ReplayDataState } from './utils'
-import { PlayerEventTypes } from './types'
-import {
+  tempEmptyFn,
   FMP,
   observer,
-  Store,
-  PlayerReducerTypes,
-  getRecordsFromDB,
-  ProgressReducerTypes,
-  ReplayDataReducerTypes,
-  transToReplayData,
-  getGZipData
-} from './utils'
-import { getPacks } from './utils/transform'
+  getRecordsFromDB
+} from '../utils'
+
+import { ReplayOptions, RecordDbData, ReplayInternalOptions, PlayerEventTypes } from '../types'
+import { PlayerComponent } from './player'
+
+import { Store, ReplayDataState } from './stores';
+import { autorun } from 'mobx';
 
 const defaultReplayOptions = {
   autoplay: true,
-  mode: 'default',
   target: window,
-  heatPoints: true,
-  timeMode: 'durationTime',
-  fastForward: [2, 8],
-  disableScrolling: true
 }
 
 export class Player {
   on: (key: PlayerEventTypes, fn: Function) => void = tempEmptyFn
   destroy: () => void = tempEmptyFn
-  append: (records: RecordData[]) => void = tempEmptyFn
   constructor(options?: ReplayOptions) {
       const player = new PlayerModule(options)
       Object.keys(this).forEach((key: keyof Player) => {
@@ -58,41 +38,30 @@ export class PlayerModule {
   fmp: FMP
   destroyStore = new Set<Function>()
   options: ReplayInternalOptions
-  ctrl: any
   initialized = false
+  player: PlayerComponent
   constructor(options?: ReplayOptions) {
       this.init(options)
       this.watchData()
+      this.initComponent()
   }
 
-  @ConnectProps(state => ({
-      currentData: state.replayData.currentData,
-      records: state.replayData.records,
-      packs: state.replayData.packs
-  }))
   private watchData(state?: ReplayDataState) {
       if (state && !this.initialized) {
           this.initialized = true
           const opts = this.options
-          const { records, packs, currentData } = state
+          const records = state.records;
 
           (this.fmp = new FMP()).ready(async () => {
               if (records.length) {
-                  if (opts.autoplay || hasAudio) {
+                  if (opts.autoplay) {
                       if (opts.autoplay) {
-                          Store.dispatch({
-                              type: PlayerReducerTypes.SPEED,
-                              data: { speed: 1 }
-                          })
+                          Store.playerStore.setSpeed(1) 
                       }
                   }
               }
           })
-
-          if (packs.length) {
-              this.calcProgress()
-          }
-
+          this.calcProgress()
       }
   }
 
@@ -101,8 +70,19 @@ export class PlayerModule {
           logInfo()
       }
 
+      this.listenStore();
       this.initOptions(options)
       this.initData()
+  }
+
+  private initComponent() {
+    this.player = new PlayerComponent(this.options)
+  }
+
+  private listenStore() {
+    autorun(() => {
+        this.watchData({records: Store.replayDataStore.records})
+    })
   }
 
   private async initOptions(options?: ReplayOptions) {
@@ -113,21 +93,14 @@ export class PlayerModule {
       } as ReplayInternalOptions
 
       this.options = opts
-      Store.dispatch({ type: PlayerReducerTypes.OPTIONS, data: { options: opts } })
-      this.destroyStore.add(() => Store.unsubscribe())
+      Store.playerStore.setOptions(opts)
   }
 
   private async initData() {
       const opts = this.options
       const records = await this.getRecords(opts)
       window.G_REPLAY_RECORDS = records
-      const packs = getPacks(records)
-      const firstData = transToReplayData(packs[0])
-
-      Store.dispatch({
-          type: ReplayDataReducerTypes.UPDATE_DATA,
-          data: { records, packs, currentData: firstData }
-      })
+      Store.replayDataStore.updateData({records})
   }
 
   private async getRecords(options: ReplayInternalOptions) {
@@ -136,108 +109,41 @@ export class PlayerModule {
       const records =
           recordsData ||
           (receiver && (await this.dataReceiver(receiver))) ||
-          getGZipData() ||
           (await getRecordsFromDB())
 
       if (!records) {
           throw logError('Replay data not found')
-      }
+      };
 
       return records
   }
 
   private calcProgress() {
-      const { packs } = Store.getState().replayData
-      const startTime = packs[0][0].time
-
-      let duration = 0
-      const packsInfo: {
-          startTime: number
-          endTime: number
-          duration: number
-          diffTime: number
-      }[] = []
-      let diffTime = 0
-      packs.forEach((pack, index) => {
-          const startTime = pack[0].time
-          const endTime = pack.slice(-1)[0].time
-          if (index) {
-              diffTime += startTime - packs[index - 1].slice(-1)[0].time
-          }
-          const info = {
-              startTime,
-              endTime,
-              duration: endTime - startTime,
-              diffTime
-          }
-          packsInfo.push(info)
-          duration += info.duration
-      })
-      const endTime = startTime + duration
-
-      Store.dispatch({
-          type: ProgressReducerTypes.PROGRESS,
-          data: {
-              duration,
-              packsInfo,
-              startTime,
-              endTime
-          }
-      })
+      const { records } = Store.replayDataStore
+      const startTime = records[0].time
+      const endTime = records.slice(-1)[0].time
+      const duration = endTime - startTime;
+      Store.progressStore.setProgress({startTime, endTime, duration})
   }
 
-  private dispatchEvent(type: string, data: RecordData) {
-      const event = new CustomEvent(type, { detail: data })
-      window.dispatchEvent(event)
-  }
 
-  private async dataReceiver(receiver: (sender: (data: RecordData) => void) => void): Promise<RecordData[]> {
-      let isResolved: boolean
-      let head: HeadRecord
-      let snapshot: SnapshotRecord
+  private async dataReceiver(receiver: (sender: (data: RecordDbData[]) => void) => void): Promise<RecordDbData[]> {
       return await new Promise(resolve => {
           receiver(data => {
-              if (isResolved) {
-                  this.dispatchEvent('record-data', data as RecordData)
-              } else {
-                  if (data.type === RecordType.HEAD) {
-                      head = data
-                  } else if (data.type === RecordType.SNAPSHOT) {
-                      snapshot = data
-                  }
-
-                  if (head && snapshot) {
-                      isResolved = true
-                      resolve([head, snapshot])
-                      this.dispatchEvent('record-data', data as RecordData)
-                  }
-              }
+            resolve(data)
           })
       })
   }
 
-  private triggerCalcProgress = debounce(() => this.calcProgress(), 500)
-
   async destroy(opts: { removeDOM: boolean } = { removeDOM: true }) {
       this.destroyStore.forEach(un => un())
       observer.destroy()
-      Store.unsubscribe()
       await delay(0)
       removeGlobalVariables()
   }
 
   public on(key: PlayerEventTypes, fn: Function) {
       observer.on(key, fn)
-  }
-
-  public async append(records: RecordData[]) {
-      await delay(0)
-      Store.dispatch({
-          type: ReplayDataReducerTypes.APPEND_RECORDS,
-          data: { records }
-      })
-
-      this.triggerCalcProgress()
   }
 
 }
