@@ -35,7 +35,7 @@ export class RecorderModule extends Pluginable {
   private middleware: RecorderMiddleware[] = [...this.defaultMiddleware];
   private watchers: Array<typeof Watcher>;
   private watchersInstance = new Map<string, Watcher<RecordData>>();
-  private watchesReadyPromise = new Promise((resolve) => (this.watcherResolve = resolve));
+  private watchesReadyPromise;
   private watcherResolve: Function;
   private startTime: number;
   private destroyTime: number;
@@ -48,6 +48,7 @@ export class RecorderModule extends Pluginable {
     const opts = this.initOptions(options);
     this.options = opts;
     this.watchers = this.getWatchers() as typeof Watcher[];
+    this.watchesReadyPromise = new Promise((resolve) => (this.watcherResolve = resolve));
     this.init();
   }
 
@@ -78,6 +79,7 @@ export class RecorderModule extends Pluginable {
       this.status = RecorderStatus.HALT;
       this.destroyTime = ret.lastTime || getTime();
     }
+    this.hooks.end.call(this);
   }
 
   private async pause() {
@@ -172,7 +174,7 @@ export class RecorderModule extends Pluginable {
       }
     });
 
-    this.watcherResolve();
+    this.watcherResolve?.();
   }
 
   private connectCompose(list: RecorderMiddleware[]) {

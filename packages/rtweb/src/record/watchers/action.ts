@@ -53,8 +53,6 @@ type Rule = {
   next?: Rule | Rule[];
 };
 
-type PossibleRule = Rule | Rule['judge'];
-
 // 返回嵌套的rule
 const composeRule = (rules: any) => {
   return rules.reduce((p: any, c: any) => {
@@ -92,7 +90,7 @@ const isInputRecord = {
     // 上次是click且id一样的input 为input输入框的change事件，保存此次input事件
     if ((record.data as inputData).source === IncrementalSource.Input) {
       const preEvent = (watcher.data[watcher.data.length - 1] as any) || {};
-      if (isClick(preEvent) && (record.data as inputData).id === preEvent.id) {
+      if (isClick(preEvent.data) && (record.data as inputData).id === preEvent.data.id) {
         return true;
       }
     }
@@ -110,7 +108,7 @@ const interestedRecords = [
 
 export class ActionWatcher extends Watcher<any> {
   private stopRecord: Function | undefined;
-  public data: eventWithTime[];
+  public data: eventWithTime[] = [];
 
   protected init() {
     this.context.addEventListener('beforeunload', this.handleFn);
@@ -159,7 +157,7 @@ export class ActionWatcher extends Watcher<any> {
       if (Array.isArray(rule)) {
         for (const sub of rule) {
           const { judge, handle } = sub;
-          if (judge(record)) {
+          if (judge(record, this)) {
             const extras = handle(record, this);
             this.push(extras.type, record, extras);
             break;
@@ -167,7 +165,7 @@ export class ActionWatcher extends Watcher<any> {
         }
       } else {
         const { judge, handle, next } = rule;
-        if (!judge(record)) {
+        if (!judge(record, this)) {
           continue;
         }
         if (next) {

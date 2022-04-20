@@ -16,12 +16,12 @@ export class localDBPlugin {
 
   apply(recorder: RecorderModule) {
     const { plugin } = recorder;
-    plugin('run', (record) => {
+    plugin('run', () => {
       localforage.config({ name: this.dbName });
     });
 
     plugin('emit', (record: RecordData) => {
-      console.log(`received record: ${record}`);
+      console.log(`received record:`, record);
       this.records.push({ type: record.type, time: record.time, ...record.extras });
     });
 
