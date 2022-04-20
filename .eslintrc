@@ -12,7 +12,7 @@
         "ecmaVersion": 5
       },
       "files": ["scripts/**/*.js", "packages/**/*.js"],
-      "extends": ["eslint:recommended", "plugin:node/recommended"],
+      "extends": ["eslint:recommended"],
       "rules": {
         "no-unused-vars": ["warn"],
         "no-process-exit": ["off"]
@@ -52,8 +52,7 @@
         "prefer-rest-params": ["off"],
         "@typescript-eslint/no-non-null-assertion": ["off"],
         "@typescript-eslint/explicit-module-boundary-types": ["off"],
-        "@typescript-eslint/no-var-requires": ["off"],
-        "node/no-unpublished-require": ["off"]
+        "@typescript-eslint/no-var-requires": ["off"]
       }
     }
   ]

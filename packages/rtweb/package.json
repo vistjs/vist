@@ -1,6 +1,6 @@
 {
   "name": "rtweb",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "record and test the web",
   "keywords": [
     "rtweb",
@@ -11,7 +11,7 @@
   "author": "letshare <brucecai2012@gmail.com>",
   "homepage": "https://github.com/letshare/rtweb#readme",
   "license": "MIT",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
