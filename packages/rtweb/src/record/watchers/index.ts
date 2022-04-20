@@ -1,10 +1,9 @@
-
-import { ActionWatcher } from './action'
+import { ActionWatcher } from './action';
 
 export const baseWatchers = {
-    ActionWatcher,
-}
+  ActionWatcher,
+};
 
 export const watchers = {
-    ...baseWatchers,
-}
+  ...baseWatchers,
+};

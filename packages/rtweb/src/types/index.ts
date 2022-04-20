@@ -1,3 +1,2 @@
-export * from './record'
-export * from './replay'
-
+export * from './record';
+export * from './replay';

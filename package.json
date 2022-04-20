@@ -13,17 +13,29 @@
   "scripts": {
     "postinstall": "husky install",
     "dev": "lerna run dev --parallel",
-    "build": "lerna run build --stream"
+    "build": "lerna run build --stream",
+    "lint": "eslint 'packages/**/*.{js,ts}' --quiet --fix"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write"
+    ],
+    "*.ts?(x)": [
+      "eslint",
+      "prettier --parser=typescript --write"
+    ]
   },
   "devDependencies": {
     "@commitlint/cli": "^13.2.0",
     "@commitlint/config-conventional": "^13.2.0",
-    "husky": "^7.0.2",
-    "lerna": "^4.0.0",
-    "prettier": "^2.3.2",
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.3.1"
+    "eslint-plugin-prettier": "^3.3.1",
+    "husky": "^7.0.2",
+    "lerna": "^4.0.0",
+    "prettier": "^2.3.2"
   }
 }

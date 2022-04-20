@@ -1,43 +1,43 @@
-import { RecordDbData, ReplayData } from './types'
+import { RecordDbData, ReplayData } from './types';
 
 declare global {
-    interface Window {
-        G_RECORD_OPTIONS: any
-        G_RECORD_RELATED_ID: string
-        G_REPLAY_RECORDS: RecordDbData[]
-        G_REPLAY_STR_RECORDS: string
-        G_REPLAY_DATA: ReplayData
-        Object: typeof Object
+  interface Window {
+    G_RECORD_OPTIONS: any;
+    G_RECORD_RELATED_ID: string;
+    G_REPLAY_RECORDS: RecordDbData[];
+    G_REPLAY_STR_RECORDS: string;
+    G_REPLAY_DATA: ReplayData;
+    Object: typeof Object;
 
-        HTMLElement: typeof HTMLElement
-        HTMLInputElement: typeof HTMLInputElement
-        HTMLSelectElement: typeof HTMLSelectElement
-        HTMLTextAreaElement: typeof HTMLTextAreaElement
-        HTMLOptionElement: typeof HTMLOptionElement
+    HTMLElement: typeof HTMLElement;
+    HTMLInputElement: typeof HTMLInputElement;
+    HTMLSelectElement: typeof HTMLSelectElement;
+    HTMLTextAreaElement: typeof HTMLTextAreaElement;
+    HTMLOptionElement: typeof HTMLOptionElement;
 
-        webkitAudioContext?: typeof AudioContext
-    }
+    webkitAudioContext?: typeof AudioContext;
+  }
 
-    interface Document {
-        createElement(tagName: string, xx: boolean): HTMLElement
-    }
+  interface Document {
+    createElement(tagName: string, xx: boolean): HTMLElement;
+  }
 
-    interface EventTarget {
-        result?: any
-    }
+  interface EventTarget {
+    result?: any;
+  }
 
-    interface Event {
-        arguments: any
-    }
+  interface Event {
+    arguments: any;
+  }
 
-    interface HTMLInputElement {
-        oldValue: string
-        value: string
-    }
+  interface HTMLInputElement {
+    oldValue: string;
+    value: string;
+  }
 
-    interface HTMLCanvasElement {
-        captureStream(frameRate?: number): MediaStream
-    }
+  interface HTMLCanvasElement {
+    captureStream(frameRate?: number): MediaStream;
+  }
 }
 
-export {}
+export {};

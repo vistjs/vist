@@ -1,31 +1,31 @@
-import {RecordDbData} from './record'
+import { RecordDbData } from './record';
 
 export interface ReplayData {
-    index?: number
-    records: RecordDbData[]
+  index?: number;
+  records: RecordDbData[];
 }
 
 export interface ReplayOptions {
-    exportName?: string
-    receiver?: (sender: (data: RecordDbData[]) => void) => void
-    autoplay?: boolean
-    records?: RecordDbData[]
-    target?: string | HTMLElement | Window
+  exportName?: string;
+  receiver?: (sender: (data: RecordDbData[]) => void) => void;
+  autoplay?: boolean;
+  records?: RecordDbData[];
+  target?: string | HTMLElement | Window;
 }
 
 export interface ReplayInternalOptions extends ReplayOptions {
-    destroyStore: Set<Function>
-    autoplay: boolean
-    target: string | HTMLElement | Window
+  destroyStore: Set<Function>;
+  autoplay: boolean;
+  target: string | HTMLElement | Window;
 }
 
 export enum PlayerEventTypes {
-    INIT = 'init',
-    PLAY = 'play',
-    PAUSE = 'pause',
-    STOP = 'stop',
-    SPEED = 'speed',
-    RESIZE = 'resize',
-    PROGRESS = 'progress',
-    JUMP = 'jump'
+  INIT = 'init',
+  PLAY = 'play',
+  PAUSE = 'pause',
+  STOP = 'stop',
+  SPEED = 'speed',
+  RESIZE = 'resize',
+  PROGRESS = 'progress',
+  JUMP = 'jump',
 }

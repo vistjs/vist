@@ -3,62 +3,62 @@
  * TODO FMP (first Meaningful Paint) TODO
  */
 export class FMP {
-    interval = 1000
-    len = 0
-    resolved = false
-    listener: Array<() => void> = []
-    timer: null | number = null
-    constructor() {
-        this.observe()
-    }
+  interval = 1000;
+  len = 0;
+  resolved = false;
+  listener: Array<() => void> = [];
+  timer: null | number = null;
+  constructor() {
+    this.observe();
+  }
 
-    private clearTimer() {
-        if (this.timer) {
-            clearTimeout(this.timer)
-            this.timer = null
+  private clearTimer() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+  }
+
+  destroy() {
+    this.listener.length = 0;
+  }
+
+  observe() {
+    this.timer = window.setTimeout(() => {
+      const entries = performance
+        .getEntriesByType('resource')
+        .filter((item: PerformanceResourceTiming) => this.isMatchType(item));
+      const len = entries.length;
+      if (len <= this.len) {
+        performance.clearResourceTimings();
+        this.clearTimer();
+        this.resolved = true;
+        if (this.listener.length) {
+          this.listener.forEach((run) => run());
         }
-    }
+        return;
+      }
+      this.len = len;
+      this.observe();
+    }, this.interval);
+  }
 
-    destroy() {
-        this.listener.length = 0
+  isMatchType(entry: PerformanceResourceTiming) {
+    switch (entry.initiatorType) {
+      case 'link':
+      case 'img':
+      case 'css':
+      case 'iframe':
+        return true;
+      default:
+        break;
     }
+  }
 
-    observe() {
-        this.timer = window.setTimeout(() => {
-            const entries = performance
-                .getEntriesByType('resource')
-                .filter((item: PerformanceResourceTiming) => this.isMatchType(item))
-            const len = entries.length
-            if (len <= this.len) {
-                performance.clearResourceTimings()
-                this.clearTimer()
-                this.resolved = true
-                if (this.listener.length) {
-                    this.listener.forEach(run => run())
-                }
-                return
-            }
-            this.len = len
-            this.observe()
-        }, this.interval)
+  ready(fn: () => void) {
+    if (this.resolved) {
+      return fn();
     }
-
-    isMatchType(entry: PerformanceResourceTiming) {
-        switch (entry.initiatorType) {
-            case 'link':
-            case 'img':
-            case 'css':
-            case 'iframe':
-                return true
-            default:
-                break
-        }
-    }
-
-    ready(fn: () => void) {
-        if (this.resolved) {
-            return fn()
-        }
-        this.listener.push(fn)
-    }
+    this.listener.push(fn);
+  }
 }
