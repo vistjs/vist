@@ -1,10 +1,10 @@
 import React from 'react';
-import Simple from '../pages/simple';
+import Simple from '../pages/form';
 
 export const routes = [
   {
-    path: '/simple',
-    label: 'simple',
+    path: '/form',
+    label: 'form',
     element: <Simple />,
   },
 ];

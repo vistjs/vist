@@ -45,8 +45,7 @@ export class RecorderModule extends Pluginable {
 
   constructor(options?: RecordOptions) {
     super(options);
-    const opts = this.initOptions(options);
-    this.options = opts;
+    this.initOptions(options);
     this.watchers = this.getWatchers() as typeof Watcher[];
     this.watchesReadyPromise = new Promise((resolve) => (this.watcherResolve = resolve));
     this.init();
@@ -54,7 +53,7 @@ export class RecorderModule extends Pluginable {
 
   private initOptions(options?: RecordOptions) {
     const opts = { ...RecorderModule.defaultRecordOpts, ...options } as RecordInternalOptions;
-    return opts;
+    this.options = opts;
   }
 
   private init() {

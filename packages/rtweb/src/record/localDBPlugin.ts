@@ -1,5 +1,6 @@
 import { RecorderModule } from '.';
 import localforage from 'localforage';
+import { RECORD_TABLE } from '../constant';
 import { RecordDbData, RecordData } from '../types';
 type OPTIONS = {
   dbName: string;
@@ -8,17 +9,18 @@ type OPTIONS = {
 export class localDBPlugin {
   private dbName: string;
   private records: RecordDbData[] = [];
+  private store;
 
   constructor(options: OPTIONS) {
     /** init plugin options */
     this.dbName = options.dbName;
+    this.store = localforage.createInstance({
+      name: this.dbName,
+    });
   }
 
   apply(recorder: RecorderModule) {
     const { plugin } = recorder;
-    plugin('run', () => {
-      localforage.config({ name: this.dbName });
-    });
 
     plugin('emit', (record: RecordData) => {
       console.log(`received record:`, record);
@@ -27,7 +29,7 @@ export class localDBPlugin {
 
     plugin('end', () => {
       console.log('recording finish');
-      localforage.setItem('frames', this.records).then(() => {
+      this.store.setItem(RECORD_TABLE, this.records).then(() => {
         this.records = [];
       });
     });

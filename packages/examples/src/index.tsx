@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
-import { createLocalDbRecord } from 'rtweb';
+import { createLocalDbRecorder, createLocalDbPlayer, getUrlParam } from 'rtweb';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
@@ -20,5 +20,19 @@ root.render(
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
-// @ts-ignore
-window.record = createLocalDbRecord();
+if (getUrlParam('recordId')) {
+  // @ts-ignore
+  window.replayer = createLocalDbPlayer();
+  type EventTypes = 'play' | 'stop' | 'pause' | 'speed' | 'resize';
+  // @ts-ignore
+  window.replayer.on('play', (...args) => {
+    console.log('replay', args);
+  });
+  // @ts-ignore
+  window.replayer.on('pause', (...args) => {
+    console.log('pause', args);
+  });
+} else {
+  // @ts-ignore
+  window.recorder = createLocalDbRecorder();
+}

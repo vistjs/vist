@@ -1,22 +1,13 @@
 // player裸壳子，要提供命令出来
 
-import {
-  logError,
-  logInfo,
-  isDev,
-  removeGlobalVariables,
-  delay,
-  tempEmptyFn,
-  FMP,
-  observer,
-  getRecordsFromDB,
-} from '../utils';
+import { logError, logInfo, isDev, removeGlobalVariables, delay, tempEmptyFn, FMP, observer } from '../utils';
 
 import { ReplayOptions, RecordDbData, ReplayInternalOptions, PlayerEventTypes } from '../types';
 import { PlayerComponent } from './player';
+import { Pluginable } from './pluginable';
 
-import { Store, ReplayDataState } from './stores';
-import { autorun } from 'mobx';
+import { Store } from './stores';
+import { reaction } from 'mobx';
 
 const defaultReplayOptions = {
   autoplay: true,
@@ -34,24 +25,23 @@ export class Player {
   }
 }
 
-export class PlayerModule {
-  fmp: FMP;
+export class PlayerModule extends Pluginable {
+  private fmp: FMP;
   destroyStore = new Set<Function>();
-  options: ReplayInternalOptions;
-  initialized = false;
-  player: PlayerComponent;
+  private options: ReplayInternalOptions;
+  private initialized = false;
+  private player: PlayerComponent;
+
   constructor(options?: ReplayOptions) {
-    this.init(options);
-    this.watchData();
-    this.initComponent();
+    super(options);
+    this.initOptions(options);
+    this.init();
   }
 
-  private watchData(state?: ReplayDataState) {
-    if (state && !this.initialized) {
+  private watchData(records: RecordDbData[]) {
+    if (records && !this.initialized) {
       this.initialized = true;
       const opts = this.options;
-      const records = state.records;
-
       (this.fmp = new FMP()).ready(async () => {
         if (records.length) {
           if (opts.autoplay) {
@@ -65,24 +55,26 @@ export class PlayerModule {
     }
   }
 
-  private init(options?: ReplayOptions) {
+  private init() {
     if (!isDev) {
       logInfo();
     }
 
+    // warning: 让plugin的hook先于player注册
+    this.loadPlugins();
+
+    this.initComponent();
     this.listenStore();
-    this.initOptions(options);
+
     this.initData();
   }
 
   private initComponent() {
-    this.player = new PlayerComponent(this.options);
+    this.player = new PlayerComponent(this.options, this);
   }
 
   private listenStore() {
-    autorun(() => {
-      this.watchData({ records: Store.replayDataStore.records });
-    });
+    reaction(() => Store.replayDataStore.records, this.watchData.bind(this));
   }
 
   private async initOptions(options?: ReplayOptions) {
@@ -106,7 +98,7 @@ export class PlayerModule {
   private async getRecords(options: ReplayInternalOptions) {
     const { receiver, records: recordsData } = options;
 
-    const records = recordsData || (receiver && (await this.dataReceiver(receiver))) || (await getRecordsFromDB());
+    const records = recordsData || (receiver && (await this.dataReceiver(receiver)));
 
     if (!records) {
       throw logError('Replay data not found');

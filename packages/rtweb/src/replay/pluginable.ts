@@ -1,32 +1,28 @@
-import { SyncHook } from 'tapable';
-
-import { RecordOptions } from '../types';
+import { SyncBailHook } from 'tapable';
+import { ReplayOptions } from '../types';
 import { logError } from '../utils';
-import { Watcher } from './watcher';
+import { Store } from './stores';
 
-export interface RecorderPlugin {
+export interface ReplayerPlugin {
   apply(recorder: Pluginable): void;
 }
 
-type HooksType = 'beforeRun' | 'run' | 'emit' | 'end';
+type HooksType = 'render';
 
-type IHOOK = Record<HooksType, SyncHook<any, any, any>>;
+type IHOOK = Record<HooksType, SyncBailHook<any, any, any>>;
 
 // 继承Pluginable后，在constructor要调用loadPlugins，通过 this.hooks.xx.call触发plugin
-// record的plugin主要用于拓展产生record
+// replay的plugin主要用于拓展控制和render
 export class Pluginable {
-  protected hooks: IHOOK;
-  private defaultPlugins: RecorderPlugin[] = [];
-  public pluginWatchers: typeof Watcher[] = [];
+  public hooks: IHOOK;
+  private defaultPlugins: ReplayerPlugin[] = [];
 
-  constructor(options?: RecordOptions) {
+  constructor(options?: ReplayOptions) {
     this.initPlugin(options);
 
     const DEFAULT_HOOKS = {
-      beforeRun: new SyncHook(),
-      run: new SyncHook(),
-      emit: new SyncHook(['data']),
-      end: new SyncHook(),
+      //@ts-ignore has player
+      render: new SyncBailHook(['player', 'record', 'options']),
     };
 
     const HOOKS = this.checkHookAvailable()
@@ -40,7 +36,7 @@ export class Pluginable {
 
   public checkHookAvailable = () => {
     try {
-      new SyncHook().call(null);
+      new SyncBailHook().call(null);
       return true;
     } catch (error) {
       logError(`Plugin hooks is not available in the current env, because ${error}`);
@@ -48,18 +44,41 @@ export class Pluginable {
   };
 
   // 让插件注册hook回调
-  public plugin = (type: keyof IHOOK, cb: (data: any) => void) => {
+  public plugin = (type: keyof IHOOK, cb: (player: any, record: any, options: any) => void) => {
     const name = this.hooks[type].constructor.name;
     const method = /Async/.test(name) ? 'tapAsync' : 'tap';
     // @ts-ignore: TODO
     this.hooks[type][method](type, cb);
   };
 
-  public use(plugin: RecorderPlugin): void {
+  public play() {
+    if (Store.playerStore.speed === 0) {
+      Store.playerStore.setSpeed(1);
+    } else {
+      //@ts-ignore has player
+      this.player.play();
+    }
+  }
+
+  public speed(n: number) {
+    Store.playerStore.setSpeed(n);
+  }
+
+  public pause() {
+    //@ts-ignore has player
+    this.player.pause();
+  }
+
+  public stop() {
+    //@ts-ignore has player
+    this.player.stop();
+  }
+
+  public use(plugin: ReplayerPlugin): void {
     this.plugins.push(plugin);
   }
 
-  private initPlugin(options?: RecordOptions) {
+  private initPlugin(options?: ReplayOptions) {
     const { plugins } = options || {};
     this.plugins.push(...this.defaultPlugins, ...(plugins || []));
   }
@@ -71,9 +90,5 @@ export class Pluginable {
     });
   }
 
-  private plugins: RecorderPlugin[] = [];
-
-  public addWatcher(watcher: typeof Watcher) {
-    this.pluginWatchers.push(watcher);
-  }
+  private plugins: ReplayerPlugin[] = [];
 }

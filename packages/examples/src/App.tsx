@@ -44,16 +44,16 @@ function NoMatch() {
   );
 }
 
-export default () => {
+export default function App() {
   let route: RouteObject[] = [
     {
       path: '/',
       element: <Layout />,
-      children: [...routes, { path: '*', element: <NoMatch /> }],
+      children: [{ index: true, element: routes[0].element }, ...routes, { path: '*', element: <NoMatch /> }],
     },
   ];
 
   let element = useRoutes(route);
 
   return <div>{element}</div>;
-};
+}

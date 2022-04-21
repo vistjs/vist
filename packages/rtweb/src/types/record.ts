@@ -1,4 +1,5 @@
 import { RecorderPlugin } from '../record/pluginable';
+
 import { RecorderModule } from '../record';
 import { watchers } from '../record/watchers';
 import { eventWithTime } from 'rrweb/typings/types.d';

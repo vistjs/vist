@@ -1,4 +1,5 @@
 import { RecordDbData } from './record';
+import { ReplayerPlugin } from '../replay/pluginable';
 
 export interface ReplayData {
   index?: number;
@@ -11,6 +12,7 @@ export interface ReplayOptions {
   autoplay?: boolean;
   records?: RecordDbData[];
   target?: string | HTMLElement | Window;
+  plugins?: ReplayerPlugin[];
 }
 
 export interface ReplayInternalOptions extends ReplayOptions {

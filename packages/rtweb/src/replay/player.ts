@@ -3,8 +3,8 @@ import { RecordDbData, ReplayInternalOptions, PlayerEventTypes } from '../types'
 import { getTime, delay, observer, AnimationFrame } from '../utils';
 
 import { Store } from './stores';
-import { autorun } from 'mobx';
-
+import { reaction } from 'mobx';
+import { PlayerModule } from '.';
 export class PlayerComponent {
   target: HTMLElement;
   options: ReplayInternalOptions;
@@ -30,27 +30,26 @@ export class PlayerComponent {
 
   maxIntensityStep = 8;
 
-  constructor(options: ReplayInternalOptions) {
+  c: PlayerModule;
+
+  constructor(options: ReplayInternalOptions, c: PlayerModule) {
+    this.c = c;
     this.options = options;
     this.init();
   }
 
-  private watchPlayerSpeed(state?: { speed: number }) {
-    if (state) {
-      const speed = state.speed;
-      const curSpeed = this.speed;
-      this.speed = speed;
+  private watchPlayerSpeed(speed: number) {
+    const curSpeed = this.speed;
+    this.speed = speed;
+    observer.emit(PlayerEventTypes.SPEED, speed);
 
-      observer.emit(PlayerEventTypes.SPEED, speed);
-
-      if (speed > 0) {
-        this.play();
-        if (curSpeed === 0) {
-          observer.emit(PlayerEventTypes.PLAY);
-        }
-      } else {
-        this.pause();
+    if (speed > 0) {
+      this.play();
+      if (curSpeed === 0) {
+        observer.emit(PlayerEventTypes.PLAY);
       }
+    } else {
+      this.pause();
     }
   }
 
@@ -59,20 +58,15 @@ export class PlayerComponent {
   }
 
   private listenStore() {
-    autorun(() => {
-      this.watchPlayerSpeed({ speed: Store.playerStore.speed });
-    });
-    autorun(() => {
-      this.watchProgress(Store.progressStore.endTime);
-    });
+    reaction(() => Store.playerStore.speed, this.watchPlayerSpeed.bind(this));
+
+    reaction(() => Store.progressStore.endTime, this.watchProgress.bind(this));
   }
 
   private async init() {
     this.calcFrames();
 
     this.listenStore();
-
-    this.records = this.processing(Store.replayDataStore.records);
 
     observer.on(PlayerEventTypes.JUMP, async (state: { time: number; percent?: number }) => this.jump(state, true));
 
@@ -85,6 +79,14 @@ export class PlayerComponent {
     observer.on(PlayerEventTypes.PROGRESS, (frame: number) => {
       const percent = frame / (this.frames.length - 1);
     });
+
+    this.c.hooks.render.tap('inner render', (context, record, options) => {
+      renderAll.call(context, record, options);
+    });
+  }
+
+  private initViewState() {
+    this.records = this.processing(Store.replayDataStore.records);
   }
 
   public async jump(state: { time: number; percent?: number }, shouldLoading = false) {
@@ -100,6 +102,8 @@ export class PlayerComponent {
           return true;
         }
       });
+
+    this.initViewState();
 
     this.frameIndex = frameIndex;
     this.initTime = getTime();
@@ -139,6 +143,8 @@ export class PlayerComponent {
 
     this.initTime = getTime();
     this.startTime = this.frames[this.frameIndex];
+
+    this.initViewState();
 
     async function loop(this: PlayerComponent, t: number, loopIndex: number) {
       const timeStamp = getTime() - this.initTime;
@@ -203,7 +209,8 @@ export class PlayerComponent {
 
   private execFrame(record: RecordDbData) {
     const { isJumping, speed } = this;
-    renderAll.call(this, record, { isJumping, speed });
+    // renderAll.call(this, record, { isJumping, speed });
+    this.c.hooks.render.call(this, record, { isJumping, speed });
   }
 
   private calcFrames(maxInterval = this.maxFrameInterval) {

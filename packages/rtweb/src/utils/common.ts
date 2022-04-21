@@ -1,17 +1,19 @@
-import { APPFLAG } from '../constant';
+import { APP_FLAG, RECORD_TABLE } from '../constant';
+import localforage from 'localforage';
+
 export const isDev = process.env.NODE_ENV === 'development';
 
 export const version = '__VERSION__';
 
 export function logError(e: Error | string): string {
   const msg = (e as Error).message || (e as string);
-  console.error(`${APPFLAG} Error: ${msg}`);
+  console.error(`${APP_FLAG} Error: ${msg}`);
   return msg;
 }
 
 export function logWarn(e: Error | string): string {
   const msg = (e as Error).message || (e as string);
-  console.warn(`${APPFLAG} Warning: ${msg}`);
+  console.warn(`${APP_FLAG} Warning: ${msg}`);
   return msg;
 }
 
@@ -107,8 +109,8 @@ export async function delay(t = 200): Promise<void> {
 
 export function logAsciiLogo() {
   /* eslint-disable */
-    return console.log(
-        `%c
+  return console.log(
+    `%c
 ______ _                _____       _   
 |_   _(_)              /  __ \\     | |  
   | |  _ _ __ ___   ___| /  \\/ __ _| |_ 
@@ -116,44 +118,63 @@ ______ _                _____       _
   | | | | | | | | |  __/ \\__/\\ (_| | |_ 
   \\_/ |_|_| |_| |_|\\___|\\____/\\__,_|\\__|
     `,
-        'color: #1475b2;'
-    )
+    'color: #1475b2;'
+  );
 }
 
 export function logBadge(opts: { title: string; content: string; titleColor?: string; backgroundColor?: string }) {
-    const { title, content, titleColor, backgroundColor } = opts
-    const tColor = titleColor || '#606060'
-    const bColor = backgroundColor || '#1475b2'
+  const { title, content, titleColor, backgroundColor } = opts;
+  const tColor = titleColor || '#606060';
+  const bColor = backgroundColor || '#1475b2';
 
-    const args = [
-        '%c '.concat(title, ' %c ').concat(content, ' '),
-        'padding: 1px; border-radius: 3px 0 0 3px; color: #fff; background: '.concat(tColor, ';'),
-        'padding: 1px; border-radius: 0 3px 3px 0; color: #fff; background: '.concat(bColor, ';')
-    ]
-    console.log.apply(void 0, args)
+  const args = [
+    '%c '.concat(title, ' %c ').concat(content, ' '),
+    'padding: 1px; border-radius: 3px 0 0 3px; color: #fff; background: '.concat(tColor, ';'),
+    'padding: 1px; border-radius: 0 3px 3px 0; color: #fff; background: '.concat(bColor, ';'),
+  ];
+  console.log.apply(void 0, args);
 }
 
 export function logInfo() {
-    logAsciiLogo()
-    logBadge({ title: 'version', content: version })
-    logBadge({ title: 'more info', content: 'github.com/letshare/rtweb' })
+  logAsciiLogo();
+  logBadge({ title: 'version', content: version });
+  logBadge({ title: 'more info', content: 'github.com/letshare/rtweb' });
 }
 
 export function removeGlobalVariables() {
-    const keys = Object.keys(window)
-    const targetKeys = keys.filter(key => {
-        if (key) {
-            if (key.startsWith('G_RECORD') || key.startsWith('G_REPLAY')) {
-                return true
-            }
-        }
-    }) as (keyof Window)[]
+  const keys = Object.keys(window);
+  const targetKeys = keys.filter((key) => {
+    if (key) {
+      if (key.startsWith('G_RECORD') || key.startsWith('G_REPLAY')) {
+        return true;
+      }
+    }
+  }) as (keyof Window)[];
 
-    targetKeys.forEach(key => {
-        delete window[key]
-    })
+  targetKeys.forEach((key) => {
+    delete window[key];
+  });
 }
 
-export async function getRecordsFromDB() {
-    return []
+export async function getRecordsFromDB(dbName: string) {
+  const store = localforage.createInstance({
+    name: dbName,
+  });
+  try {
+    const value = await store.getItem(RECORD_TABLE);
+    return value;
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+}
+
+export function getUrlParam(name: string) {
+  const reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)');
+  const r =
+    window.location.search.substring(1).match(reg) ||
+    window.location.hash.substring(window.location.hash.search(/\?/) + 1).match(reg);
+  if (r != null) {
+    return decodeURIComponent(r[2]);
+  }
 }
