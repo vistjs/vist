@@ -3,7 +3,7 @@ import { PlayerComponent } from './player';
 import { RecordDbData, RecordType } from '../types';
 import { genRenders } from './renders';
 
-const { renderClick, renderInput } = genRenders('react');
+const { renderMouse, renderInput, renderDrag } = genRenders('react');
 
 export async function renderAll(
   this: PlayerComponent,
@@ -18,12 +18,16 @@ export async function renderAll(
   const actionDelay = () => (delayTime ? delay(delayTime) : Promise.resolve());
 
   switch (type) {
-    case RecordType.CLICK: {
-      renderClick(recordData);
+    case RecordType.MOUSE: {
+      renderMouse(recordData);
       break;
     }
     case RecordType.INPUT: {
       renderInput(recordData);
+      break;
+    }
+    case RecordType.DRAG: {
+      renderDrag(recordData);
       break;
     }
     default: {

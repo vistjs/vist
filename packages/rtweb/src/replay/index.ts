@@ -104,6 +104,8 @@ export class PlayerModule extends Pluginable {
       throw logError('Replay data not found');
     }
 
+    console.log('getRecords', records);
+
     return records;
   }
 

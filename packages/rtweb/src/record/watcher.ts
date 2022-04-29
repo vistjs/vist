@@ -29,16 +29,16 @@ export class Watcher<T extends RecordData> {
 
   public emitData(
     type: RecordType,
-    record: RecordData['data'], // 原始rrweb的数据结构，用于分析和log，不保存db
-    extras: any, // 保存db的数据
+    record: RecordData['data'] | null, // 原始rrweb的数据结构，用于分析和log，不保存db
+    extras: RecordData['extras'], // 保存db的数据
     time = getTime(),
     callback?: (data: RecordData) => T
   ) {
     const data = {
       type,
+      time,
       data: record,
       extras,
-      time,
     } as RecordData;
 
     if (callback) {
@@ -52,17 +52,19 @@ export class Watcher<T extends RecordData> {
     context: Window;
     eventTypes: string[];
     handleFn: (...args: any[]) => void;
-    listenerOptions: AddEventListenerOptions;
-    type: 'throttle' | 'debounce';
-    optimizeOptions: { [key: string]: boolean };
-    waitTime: number;
+    listenerOptions?: AddEventListenerOptions;
+    type?: 'throttle' | 'debounce';
+    optimizeOptions?: { [key: string]: boolean };
+    waitTime?: number;
   }) {
-    const { context, eventTypes, handleFn, listenerOptions, type, optimizeOptions, waitTime } = options;
+    const { context, eventTypes, handleFn, listenerOptions, type, optimizeOptions, waitTime = 0 } = options;
     let listenerHandle: (...args: any[]) => void;
     if (type === 'throttle') {
       listenerHandle = throttle(handleFn, waitTime, optimizeOptions);
-    } else {
+    } else if (type === 'debounce') {
       listenerHandle = debounce(handleFn, waitTime, optimizeOptions);
+    } else {
+      listenerHandle = handleFn;
     }
 
     eventTypes

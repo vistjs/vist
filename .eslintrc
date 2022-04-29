@@ -21,11 +21,7 @@
     {
       "excludedFiles": "*.spec.ts",
       "files": ["*.js", "*.ts"],
-      "extends": [
-        "plugin:@typescript-eslint/recommended",
-        "prettier/@typescript-eslint",
-        "plugin:prettier/recommended"
-      ],
+      "extends": ["plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
       "rules": {
         "@typescript-eslint/ban-types": ["off"],
         "@typescript-eslint/ban-ts-comment": [

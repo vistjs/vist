@@ -31,20 +31,24 @@ export type RecordEvent<T extends RecordData> = (e: T) => void;
 
 export type RecordData = {
   type: RecordType;
-  data: eventWithTime;
-  extras: any;
   time: number;
+  data: eventWithTime;
+  extras: Omit<RecordDbData, 'type' | 'time'>;
 };
 
 export type RecordDbData = {
   type: RecordType;
   time: number;
-  [k: string]: any;
+  dom: { x: number; y: number };
+  data?: {
+    [k: string]: any;
+  };
 };
 
 export enum RecordType {
-  'CLICK',
+  'MOUSE',
   'INPUT',
+  'DRAG',
 }
 
 export enum RecorderStatus {

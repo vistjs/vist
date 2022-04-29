@@ -38,7 +38,7 @@ yarn dev
 - [x] localdb save
 - [x] package examples use create-react-app
 - [ ] 支持所有 form 表单的输入录制
-- [ ] 支持特殊的鼠标操作：滚动、拖拽
+- [ ] 支持特殊的鼠标操作：hover、滚动、拖拽
 - [ ] ctrl 插件。特性：可以识别快捷键，以浮层显示操作 UI。功能：结束录制、打截图断点
 - [ ] 请求 record & mock 插件。 特性：可以拦截记录和 mock 所有请求，支持正则规则。功能：拦截记录到 server、从 server mock 请求
 - [ ] 上传和下载 record 数据通过远程接口
@@ -51,4 +51,4 @@ yarn dev
 - [ ] 跟用例管理系统和回归运行系统打通
 - [ ] 支持 vue
 - [ ] 完善使用文档
-- [ ] angular
+- [ ] 支持 angular

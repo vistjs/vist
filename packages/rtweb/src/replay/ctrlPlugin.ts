@@ -8,16 +8,12 @@ export class ctrlPlugin {
 
   constructor() {}
 
-  apply(replayer: PlayerModule) {
-    const { plugin } = replayer;
+  apply(rePlayer: PlayerModule) {
+    const { plugin } = rePlayer;
 
     plugin('render', (_, record: RecordDbData) => {
-      console.log(`outer record:`, record);
-      this.records.push({ type: record.type, time: record.time, ...record.extras });
+      console.log(`outer record:`, { ...record, type: record.type, time: record.time });
+      this.records.push({ type: record.type, time: record.time });
     });
-
-    setTimeout(() => {
-      replayer.pause();
-    }, 10000);
   }
 }

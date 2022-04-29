@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import 'antd/dist/antd.css';
-import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Space } from 'antd';
+import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Space, Slider } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 const { Option } = Select;
 
@@ -106,6 +106,22 @@ function Page() {
                 ]}
               >
                 <Input.TextArea rows={4} placeholder="please enter url description" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="slider" label="Slider">
+                <Slider
+                  marks={{
+                    0: 'A',
+                    20: 'B',
+                    40: 'C',
+                    60: 'D',
+                    80: 'E',
+                    100: 'F',
+                  }}
+                />
               </Form.Item>
             </Col>
           </Row>

@@ -1,10 +1,22 @@
 import React from 'react';
-import Simple from '../pages/form';
+import Form from '../pages/form';
+import Drag from '../pages/drag';
+import DnD from '../pages/dnd';
 
 export const routes = [
   {
     path: '/form',
     label: 'form',
-    element: <Simple />,
+    element: <Form />,
+  },
+  {
+    path: '/drag',
+    label: 'drag',
+    element: <Drag />,
+  },
+  {
+    path: '/dnd',
+    label: 'dnd',
+    element: <DnD />,
   },
 ];

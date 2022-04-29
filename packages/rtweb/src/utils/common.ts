@@ -178,3 +178,11 @@ export function getUrlParam(name: string) {
     return decodeURIComponent(r[2]);
   }
 }
+
+export function cloneKeys(obj: { [key: string]: any }, keys: string[]) {
+  const ret: any = {};
+  keys.forEach((k) => {
+    ret[k] = obj[k];
+  });
+  return ret;
+}

@@ -23,7 +23,7 @@ export class localDBPlugin {
     const { plugin } = recorder;
 
     plugin('emit', (record: RecordData) => {
-      console.log(`received record:`, record);
+      // console.log(`received record:`, record);
       this.records.push({ type: record.type, time: record.time, ...record.extras });
     });
 

@@ -7,6 +7,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { createLocalDbRecorder, createLocalDbPlayer, getUrlParam } from 'rtweb';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+// @ts-ignore xxx
+window.__reactRoot = root;
 root.render(
   <React.StrictMode>
     <BrowserRouter>
