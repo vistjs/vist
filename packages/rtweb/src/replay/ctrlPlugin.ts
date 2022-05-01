@@ -11,9 +11,16 @@ export class ctrlPlugin {
   apply(rePlayer: PlayerModule) {
     const { plugin } = rePlayer;
 
+    // document.addEventListener(
+    //   'mouseenter',
+    //   () => {
+    //     console.log('trigger mouseenter');
+    //   },
+    //   { capture: true }
+    // );
     plugin('render', (_, record: RecordDbData) => {
-      console.log(`outer record:`, { ...record, type: record.type, time: record.time });
-      this.records.push({ type: record.type, time: record.time });
+      // console.log(`outer record:`, { ...record, type: record.type, time: record.time });
+      // this.records.push({ type: record.type, time: record.time });
     });
   }
 }

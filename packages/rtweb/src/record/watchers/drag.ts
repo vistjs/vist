@@ -64,8 +64,8 @@ export class DragWatcher extends Watcher<any> {
           draggingNode = null;
         }
 
-        // dragenter: clientX和target一样为被进入的node relatedTarget为dragging node
-        // dragleave: clientX和relativeTarget一样为被离开的节点  target为dragging node
+        // dragenter: clientX and target is entered node relatedTarget is dragging node
+        // dragleave: clientX and relativeTarget is leaved node  target is dragging node
         if (event.type === 'dragenter') {
           eventData.relatedTarget = {
             x: draggingInfo.x,
@@ -87,8 +87,6 @@ export class DragWatcher extends Watcher<any> {
           };
         }
 
-        eventData.eventType = eventData.type;
-        Reflect.deleteProperty(eventData, 'type');
         console.log(`${event.type}`, event);
         this.push(RecordType.DRAG, eventData);
       },

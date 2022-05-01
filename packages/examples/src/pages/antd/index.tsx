@@ -1,8 +1,29 @@
 import { useState, useEffect } from 'react';
 import 'antd/dist/antd.css';
-import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Space, Slider } from 'antd';
+import {
+  Tooltip,
+  Drawer,
+  Form,
+  Button,
+  Col,
+  Row,
+  Input,
+  Select,
+  DatePicker,
+  Space,
+  Slider,
+  Switch,
+  Radio,
+  Checkbox,
+} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+
+import './index.css';
 const { Option } = Select;
+
+const text = <span>prompt text</span>;
+
+const buttonWidth = 70;
 
 function Page() {
   const [visible, setVisible] = useState(false);
@@ -13,6 +34,23 @@ function Page() {
   const onClose = () => {
     setVisible(false);
   };
+
+  function onChange1(e: any) {
+    debugger;
+    console.log(`change ${e.target.value}`);
+  }
+
+  function onChange(checked: boolean) {
+    console.log(`switch to ${checked}`);
+  }
+
+  function onChange2(e: any) {
+    console.log(`radio checked = ${e.target.checked}`);
+  }
+
+  function onChange3(e: any) {
+    console.log(`checkbox checked = ${e.target.checked}`);
+  }
 
   return (
     <div>
@@ -38,7 +76,7 @@ function Page() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="name" label="Name2" rules={[{ required: true, message: 'Please enter user name' }]}>
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Please enter user name" onChange={onChange1} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -124,9 +162,72 @@ function Page() {
                 />
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item name="switch" label="Switch">
+                <Switch defaultChecked onChange={onChange} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="radio" label="Radio">
+                <Radio onChange={onChange2}>Radio</Radio>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="checkbox" label="Checkbox">
+                <Checkbox onChange={onChange3}>Checkbox</Checkbox>
+              </Form.Item>
+            </Col>
           </Row>
         </Form>
       </Drawer>
+      <div className="code-box-demo">
+        <div style={{ marginLeft: buttonWidth, whiteSpace: 'nowrap' }}>
+          <Tooltip placement="topLeft" title={text}>
+            <Button>TL</Button>
+          </Tooltip>
+          <Tooltip placement="top" title={text}>
+            <Button>Top</Button>
+          </Tooltip>
+          <Tooltip placement="topRight" title={text}>
+            <Button>TR</Button>
+          </Tooltip>
+        </div>
+        <div style={{ width: buttonWidth, float: 'left' }}>
+          <Tooltip placement="leftTop" title={text}>
+            <Button>LT</Button>
+          </Tooltip>
+          <Tooltip placement="left" title={text}>
+            <Button>Left</Button>
+          </Tooltip>
+          <Tooltip placement="leftBottom" title={text}>
+            <Button>LB</Button>
+          </Tooltip>
+        </div>
+        <div style={{ width: buttonWidth, marginLeft: buttonWidth * 4 + 24 }}>
+          <Tooltip placement="rightTop" title={text}>
+            <Button>RT</Button>
+          </Tooltip>
+          <Tooltip placement="right" title={text}>
+            <Button>Right</Button>
+          </Tooltip>
+          <Tooltip placement="rightBottom" title={text}>
+            <Button>RB</Button>
+          </Tooltip>
+        </div>
+        <div style={{ marginLeft: buttonWidth, clear: 'both', whiteSpace: 'nowrap' }}>
+          <Tooltip placement="bottomLeft" title={text}>
+            <Button>BL</Button>
+          </Tooltip>
+          <Tooltip placement="bottom" title={text}>
+            <Button>Bottom</Button>
+          </Tooltip>
+          <Tooltip placement="bottomRight" title={text}>
+            <Button>BR</Button>
+          </Tooltip>
+        </div>
+      </div>
     </div>
   );
 }

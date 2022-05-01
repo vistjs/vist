@@ -1,5 +1,6 @@
 import { renderMouse, renderInput } from './react/action';
 import { renderDrag } from './react/drag';
+import { renderEvent } from './react/event';
 
 function unknownEngine(x: never): never {
   throw new Error('unknown engine');
@@ -14,6 +15,7 @@ export function genRenders(engine: SupportEngine) {
         renderMouse,
         renderInput,
         renderDrag,
+        renderEvent,
       };
     default:
       return unknownEngine(engine);

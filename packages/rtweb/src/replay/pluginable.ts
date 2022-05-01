@@ -11,8 +11,7 @@ type HooksType = 'render';
 
 type IHOOK = Record<HooksType, SyncBailHook<any, any, any>>;
 
-// 继承Pluginable后，在constructor要调用loadPlugins，通过 this.hooks.xx.call触发plugin
-// replay的plugin主要用于拓展控制和render
+// replay`s plugin to extend ctrl replay 和render
 export class Pluginable {
   public hooks: IHOOK;
   private defaultPlugins: ReplayerPlugin[] = [];
@@ -43,7 +42,7 @@ export class Pluginable {
     }
   };
 
-  // 让插件注册hook回调
+  // register hook callback
   public plugin = (type: keyof IHOOK, cb: (player: any, record: any, options: any) => void) => {
     const name = this.hooks[type].constructor.name;
     const method = /Async/.test(name) ? 'tapAsync' : 'tap';
@@ -85,7 +84,7 @@ export class Pluginable {
 
   protected loadPlugins() {
     this.plugins.forEach((plugin) => {
-      // 插件的apply方法为初始化方法，this为Pluginable
+      // apply is the plugin init call，this is Pluginable subclass instance
       plugin.apply.call(plugin, this);
     });
   }

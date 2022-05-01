@@ -12,8 +12,7 @@ type HooksType = 'beforeRun' | 'run' | 'emit' | 'end';
 
 type IHOOK = Record<HooksType, SyncHook<any, any, any>>;
 
-// 继承Pluginable后，在constructor要调用loadPlugins，通过 this.hooks.xx.call触发plugin
-// record的plugin主要用于拓展产生record
+// record`s plugin use to extend emit record
 export class Pluginable {
   protected hooks: IHOOK;
   private defaultPlugins: RecorderPlugin[] = [];
@@ -47,7 +46,6 @@ export class Pluginable {
     }
   };
 
-  // 让插件注册hook回调
   public plugin = (type: keyof IHOOK, cb: (data: any) => void) => {
     const name = this.hooks[type].constructor.name;
     const method = /Async/.test(name) ? 'tapAsync' : 'tap';
@@ -66,7 +64,6 @@ export class Pluginable {
 
   protected loadPlugins() {
     this.plugins.forEach((plugin) => {
-      // 插件的apply方法为初始化方法，this为Pluginable
       plugin.apply.call(plugin, this);
     });
   }

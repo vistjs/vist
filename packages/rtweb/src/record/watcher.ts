@@ -29,8 +29,8 @@ export class Watcher<T extends RecordData> {
 
   public emitData(
     type: RecordType,
-    record: RecordData['data'] | null, // 原始rrweb的数据结构，用于分析和log，不保存db
-    extras: RecordData['extras'], // 保存db的数据
+    record: RecordData['data'] | null, // origin data from rrweb
+    extras: RecordData['extras'], // data to save in db
     time = getTime(),
     callback?: (data: RecordData) => T
   ) {
@@ -49,7 +49,7 @@ export class Watcher<T extends RecordData> {
   }
 
   public registerEvent(options: {
-    context: Window;
+    context: Window | Document;
     eventTypes: string[];
     handleFn: (...args: any[]) => void;
     listenerOptions?: AddEventListenerOptions;

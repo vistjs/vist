@@ -1,5 +1,3 @@
-// player裸壳子，要提供命令出来
-
 import { logError, logInfo, isDev, removeGlobalVariables, delay, tempEmptyFn, FMP, observer } from '../utils';
 
 import { ReplayOptions, RecordDbData, ReplayInternalOptions, PlayerEventTypes } from '../types';
@@ -60,7 +58,7 @@ export class PlayerModule extends Pluginable {
       logInfo();
     }
 
-    // warning: 让plugin的hook先于player注册
+    // warning: let plugin`s hook before player component init
     this.loadPlugins();
 
     this.initComponent();

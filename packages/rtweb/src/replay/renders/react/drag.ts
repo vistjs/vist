@@ -13,18 +13,14 @@ const wm = new WeakMap();
 
 export function renderDrag({ dom, data }: RecordDbData) {
   const node = document.elementFromPoint(dom.x, dom.y) as HTMLElement;
-  const type = data?.eventType as keyof typeof ReactTestUtils.Simulate;
+  const type = data?.type as keyof typeof ReactTestUtils.Simulate;
   const eventData = {
     ...data,
     bubbles: true,
-    cancelable: true,
-    isTrusted: true,
+    cancelable: false,
   } as any;
 
   const draggingInfo = eventData.draggingInfo;
-  Reflect.deleteProperty(eventData, 'type');
-  Reflect.deleteProperty(eventData, 'eventType');
-  Reflect.deleteProperty(eventData, 'time');
   Reflect.deleteProperty(eventData, 'draggingInfo');
 
   if (eventData.relatedTarget) {
@@ -44,7 +40,7 @@ export function renderDrag({ dom, data }: RecordDbData) {
   node.dispatchEvent(
     new DragEvent(type, {
       bubbles: true,
-      cancelable: true,
+      cancelable: false,
       dataTransfer: eventData.dataTransfer,
     })
   );
@@ -54,6 +50,7 @@ export function renderDrag({ dom, data }: RecordDbData) {
   }
 
   const method = methodMap[type] || type;
-  // Simulate触发不了ref的node监听的事件，因为它必须收集dom上的listener
+  // Simulate canot trigger the listener no the real node，it collect listener on react props
+  // so react-dnd will
   // ReactTestUtils.Simulate[method as keyof typeof ReactTestUtils.Simulate](node, eventData as any);
 }

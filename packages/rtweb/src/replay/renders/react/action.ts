@@ -3,30 +3,48 @@ import { RecordDbData } from '../../../types';
 
 export function renderMouse({ dom, data }: RecordDbData) {
   const node = document.elementFromPoint(dom.x, dom.y) as HTMLElement;
-  // antd slider使用mousedown client坐标
-  // ReactTestUtils.Simulate.mouseDown(node, { clientX: data.x, clientY: data.y });
+
   node.dispatchEvent(
     new MouseEvent(data?.type, {
       bubbles: true,
-      cancelable: true,
-      clientX: data?.x,
-      clientY: data?.y,
+      cancelable: false,
+      ...data,
     })
   );
 }
 
-export function renderInput({ dom, data }: RecordDbData) {
+export async function renderInput({ dom, data }: RecordDbData) {
   const node = document.elementFromPoint(dom.x, dom.y) as HTMLInputElement;
-  node.value = data?.text;
+  if (node.hasOwnProperty('value')) {
+    const descriptor = Object.getOwnPropertyDescriptor(node.constructor.prototype, 'value');
+    const get = descriptor!.get;
+    // react canot use node.value set, ,will not trigger change. react use input to trigger change
+    Object.defineProperty(node, 'value', {
+      configurable: true,
+      get: function () {
+        return data?.text;
+      },
+    });
+    node.dispatchEvent(
+      new InputEvent('input', {
+        data: data?.text,
+        bubbles: true,
+        cancelable: false,
+      })
+    );
+    Object.defineProperty(node, 'value', {
+      configurable: true,
+      get,
+    });
+  } else {
+    node.checked = data?.isChecked;
+  }
+  // console.log('renderInput', dom, node, data);
   // ReactTestUtils.Simulate.change(node);
   node.dispatchEvent(
-    new InputEvent('input', {
-      data: data?.text,
+    new Event('change', {
       bubbles: true,
-      cancelable: true,
+      cancelable: false,
     })
   );
 }
-
-//@ts-ignore xxxx
-window.ReactTestUtils = ReactTestUtils;

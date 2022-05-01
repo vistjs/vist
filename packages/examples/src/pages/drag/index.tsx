@@ -53,9 +53,9 @@ function Box({ card, moveCard, index }: { card: boolean; moveCard: Function; ind
     }
   }
 
-  function handleDragLeave() {
+  function handleDragLeave(e) {
     setIsOver(false);
-    console.log(`${index},handleDragLeave`);
+    console.log(`${index},handleDragLeave`, e);
   }
 
   return (

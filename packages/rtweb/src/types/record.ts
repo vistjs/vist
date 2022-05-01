@@ -49,6 +49,7 @@ export enum RecordType {
   'MOUSE',
   'INPUT',
   'DRAG',
+  'EVENT',
 }
 
 export enum RecorderStatus {

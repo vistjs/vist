@@ -3,7 +3,7 @@ import { PlayerComponent } from './player';
 import { RecordDbData, RecordType } from '../types';
 import { genRenders } from './renders';
 
-const { renderMouse, renderInput, renderDrag } = genRenders('react');
+const Render = genRenders('react');
 
 export async function renderAll(
   this: PlayerComponent,
@@ -19,15 +19,19 @@ export async function renderAll(
 
   switch (type) {
     case RecordType.MOUSE: {
-      renderMouse(recordData);
+      Render.renderMouse(recordData);
       break;
     }
     case RecordType.INPUT: {
-      renderInput(recordData);
+      Render.renderInput(recordData);
       break;
     }
     case RecordType.DRAG: {
-      renderDrag(recordData);
+      Render.renderDrag(recordData);
+      break;
+    }
+    case RecordType.EVENT: {
+      Render.renderEvent(recordData);
       break;
     }
     default: {

@@ -3,7 +3,7 @@ import { RecordDbData, ReplayInternalOptions, PlayerEventTypes } from '../types'
 import { getTime, delay, observer, AnimationFrame } from '../utils';
 
 import { Store } from './stores';
-import { reaction } from 'mobx';
+import { reaction, toJS } from 'mobx';
 import { PlayerModule } from '.';
 export class PlayerComponent {
   target: HTMLElement;
@@ -86,7 +86,7 @@ export class PlayerComponent {
   }
 
   private initViewState() {
-    this.records = this.processing(Store.replayDataStore.records);
+    this.records = this.processing(toJS(Store.replayDataStore.records));
   }
 
   public async jump(state: { time: number; percent?: number }, shouldLoading = false) {

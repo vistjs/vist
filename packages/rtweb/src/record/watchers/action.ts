@@ -1,8 +1,17 @@
 import { Watcher } from '../watcher';
 import { eventWithTime, inputData, mouseInteractionData } from 'rrweb/typings/types.d';
 import { record, EventType, IncrementalSource, MouseInteractions } from 'rrweb';
-import { isClickEvent, isMouseEvent, getMouseEventName } from '../../utils';
+import { isMouseEvent, getMouseEventName, setClientXY, getClientXY } from '../../utils';
 import { RecordType, RecordData } from '../../types';
+
+function nodeStore(node: any) {
+  if (node.id) {
+    if (typeof node.x !== 'undefined' && typeof node.y !== 'undefined') {
+      return { x: node.x, y: node.y };
+    }
+  }
+  return getClientXY(node.id);
+}
 
 const sourceName = {
   [IncrementalSource.Mutation]: 'Mutation',
@@ -49,7 +58,7 @@ type Rule = {
   next?: Rule | Rule[];
 };
 
-// 返回嵌套的rule
+// return nested rule
 const composeRule = (rules: any): Rule => {
   return rules.reduce((p: any, c: any) => {
     if (typeof p === 'function') {
@@ -75,10 +84,11 @@ const isMouseRecord: Rule = {
   handle: (record: eventWithTime) => {
     return {
       type: RecordType.MOUSE,
-      dom: { x: (record.data as mouseInteractionData).x, y: (record.data as mouseInteractionData).y },
+      dom: nodeStore(record.data),
+      // antd slider use mousedown event`s clientX
       data: {
-        x: (record.data as mouseInteractionData).x,
-        y: (record.data as mouseInteractionData).y,
+        clientX: (record.data as mouseInteractionData).x,
+        clientY: (record.data as mouseInteractionData).y,
         type: getMouseEventName(record.data as mouseInteractionData),
       },
     };
@@ -87,41 +97,34 @@ const isMouseRecord: Rule = {
 
 const isInputRecord: Rule = {
   judge: (record: eventWithTime, watcher: ActionWatcher) => {
-    // 上次是click且id一样的input 为input输入框的change事件，保存此次input事件
     if ((record.data as inputData).source === IncrementalSource.Input) {
-      let preClick;
-      for (let i = watcher.data.length - 1; i >= 0; i--) {
-        const preEvent = watcher.data[i] as any;
-        if (isClickEvent(preEvent.data)) {
-          preClick = preEvent;
-          break;
-        }
-      }
-      if (preClick && (record.data as inputData).id === preClick.data.id) {
-        return true;
-      }
+      return true;
     }
     return false;
   },
   handle: (record: eventWithTime, watcher: ActionWatcher) => {
-    let preClick;
-    for (let i = watcher.data.length - 1; i >= 0; i--) {
-      const preEvent = watcher.data[i] as any;
-      if (isClickEvent(preEvent.data)) {
-        preClick = preEvent;
-        break;
-      }
-    }
     return {
       type: RecordType.INPUT,
-      dom: { x: preClick.data?.x, y: preClick.data?.y },
-      data: { text: (record.data as inputData).text },
+      dom: nodeStore(record.data),
+      data: { text: (record.data as inputData).text, isChecked: (record.data as inputData).isChecked },
     };
   },
 };
 
+const isMoveEvent: Rule = {
+  judge: (record: eventWithTime) => {
+    const source = (record.data as any).source;
+    if ([IncrementalSource.MouseMove, IncrementalSource.TouchMove, IncrementalSource.Drag].includes(source)) {
+      const lastPos = (record.data as any).positions[(record.data as any).positions.length - 1];
+      setClientXY(lastPos.id, lastPos.x, lastPos.y);
+      // console.log('setClientXY', record.data);
+    }
+    return false;
+  },
+};
+
 const interestedRecords: Rule[] = [
-  composeRule([isIncrementalSnapshot, isInterestedIncrementalSource, [isMouseRecord, isInputRecord]]),
+  composeRule([isIncrementalSnapshot, isInterestedIncrementalSource, [isMoveEvent, isMouseRecord, isInputRecord]]),
 ];
 
 export class ActionWatcher extends Watcher<any> {
@@ -152,15 +155,13 @@ export class ActionWatcher extends Watcher<any> {
             }, data: `,
             recordData.data
           );
-          //@ts-ignore xxx
           // console.log(`mirror: `, record.mirror.getNode(recordData.data.id));
         }
 
         that.filter(recordData);
       },
       sampling: {
-        // 不录制鼠标移动事件
-        mousemove: false,
+        mousemove: 50,
         // 设置滚动事件的触发频率
         scroll: 150, // 每 150ms 最多触发一次
         // set the interval of media interaction event
@@ -186,9 +187,9 @@ export class ActionWatcher extends Watcher<any> {
     this.emitData(type, record, extras);
   }
 
-  // 过滤规则流水线
-  // 如何处理嵌套？[a->b->[c, b]], 数组内是或的关系，中了就不继续后面
-  // interestedRecords首尾可以是数组，中间请不要用数组
+  // filter rule pipeline
+  // [a->b->[c, b]], in array c or b, if first one return true, break
+  // interestedRecords head and tail can be array，others not use array
   private filter(record: eventWithTime) {
     const rules: Array<Rule | Rule[]> = [...interestedRecords];
     let rule;
@@ -208,7 +209,7 @@ export class ActionWatcher extends Watcher<any> {
           continue;
         }
         if (next) {
-          //深度遍历
+          //deep walk
           rules.push(next);
         } else {
           const { type, ...extras } = handle?.(record, this) || {};

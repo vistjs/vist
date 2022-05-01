@@ -3,11 +3,13 @@ import 'antd/dist/antd.css';
 import './index.css';
 import { Layout as Alayout, Menu } from 'antd';
 import type { RouteObject } from 'react-router-dom';
-import { Outlet, Link, useRoutes } from 'react-router-dom';
+import { Outlet, Link, useRoutes, useLocation } from 'react-router-dom';
 import { routes } from './routers';
 const { Header, Content, Footer } = Alayout;
 
 function Layout() {
+  const location = useLocation();
+  const selected = routes.findIndex((route) => route.path === location.pathname);
   return (
     <Alayout className="layout">
       <Header>
@@ -15,7 +17,7 @@ function Layout() {
         <Menu
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={['2']}
+          selectedKeys={[`${selected === -1 ? 1 : selected + 1}`]}
           items={routes.map((route, index) => {
             const key = index + 1;
             return {
