@@ -50,6 +50,7 @@ export enum RecordType {
   'INPUT',
   'DRAG',
   'EVENT',
+  'SCROLL',
 }
 
 export enum RecorderStatus {

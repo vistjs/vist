@@ -1,6 +1,7 @@
 import ReactTestUtils from 'react-dom/test-utils';
 import { RecordDbData } from '../../../types';
 import { isTextInputElement } from '../../../utils';
+import { DOCUMENT_NODE_ID } from '../../../constant';
 
 export function renderMouse({ dom, data }: RecordDbData) {
   const node = document.elementFromPoint(dom.x, dom.y) as HTMLElement;
@@ -26,7 +27,7 @@ export function renderMouse({ dom, data }: RecordDbData) {
   }
 }
 
-export async function renderInput({ dom, data }: RecordDbData) {
+export function renderInput({ dom, data }: RecordDbData) {
   const node = document.elementFromPoint(dom.x, dom.y) as HTMLInputElement;
   if (isTextInputElement(node)) {
     const descriptor = Object.getOwnPropertyDescriptor(node.constructor.prototype, 'value');
@@ -70,4 +71,29 @@ export async function renderInput({ dom, data }: RecordDbData) {
   }
   // console.log('renderInput', dom, node, data);
   // ReactTestUtils.Simulate.change(node);
+}
+
+export function renderScroll({ dom, data }: RecordDbData) {
+  if (data?.id === -1) {
+    return;
+  }
+  if (data?.id === DOCUMENT_NODE_ID) {
+    // nest iframe content document
+    document.defaultView!.scrollTo({
+      top: data?.y,
+      left: data?.x,
+      behavior: 'smooth',
+    });
+  } else {
+    const target = document.elementFromPoint(dom.x, dom.y) as Element;
+    try {
+      (target as Node as Element).scrollTop = data?.y;
+      (target as Node as Element).scrollLeft = data?.x;
+    } catch (error) {
+      /**
+       * Seldomly we may found scroll target was removed before
+       * its last scroll event.
+       */
+    }
+  }
 }

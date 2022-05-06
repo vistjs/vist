@@ -1,5 +1,5 @@
 import { Watcher } from '../watcher';
-import { eventWithTime, inputData, mouseInteractionData } from 'rrweb/typings/types.d';
+import { eventWithTime, inputData, mouseInteractionData, scrollData } from 'rrweb/typings/types.d';
 import { record, EventType, IncrementalSource, MouseInteractions } from 'rrweb';
 import { isMouseEvent, getMouseEventName, setClientXY, getClientXY } from '../../utils';
 import { RecordType, RecordData } from '../../types';
@@ -111,7 +111,23 @@ const isInputRecord: Rule = {
   },
 };
 
-const isMoveEvent: Rule = {
+const isScrollRecord: Rule = {
+  judge: (record: eventWithTime, watcher: ActionWatcher) => {
+    if ((record.data as scrollData).source === IncrementalSource.Scroll) {
+      return true;
+    }
+    return false;
+  },
+  handle: (record: eventWithTime, watcher: ActionWatcher) => {
+    return {
+      type: RecordType.SCROLL,
+      dom: nodeStore(record.data),
+      data: { x: (record.data as scrollData).x, y: (record.data as scrollData).y, id: (record.data as scrollData).id },
+    };
+  },
+};
+
+const sniffMoveEvent: Rule = {
   judge: (record: eventWithTime) => {
     const source = (record.data as any).source;
     if ([IncrementalSource.MouseMove, IncrementalSource.TouchMove, IncrementalSource.Drag].includes(source)) {
@@ -124,7 +140,11 @@ const isMoveEvent: Rule = {
 };
 
 const interestedRecords: Rule[] = [
-  composeRule([isIncrementalSnapshot, isInterestedIncrementalSource, [isMoveEvent, isMouseRecord, isInputRecord]]),
+  composeRule([
+    isIncrementalSnapshot,
+    isInterestedIncrementalSource,
+    [sniffMoveEvent, isMouseRecord, isInputRecord, isScrollRecord],
+  ]),
 ];
 
 export class ActionWatcher extends Watcher<any> {
@@ -155,7 +175,7 @@ export class ActionWatcher extends Watcher<any> {
             }, data: `,
             recordData.data
           );
-          // console.log(`mirror: `, record.mirror.getNode(recordData.data.id));
+          // console.log(`mirror: `, record.mirror);
         }
 
         that.filter(recordData);

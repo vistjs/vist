@@ -34,6 +34,10 @@ export async function renderAll(
       Render.renderEvent(recordData);
       break;
     }
+    case RecordType.SCROLL: {
+      Render.renderScroll(recordData);
+      break;
+    }
     default: {
       break;
     }

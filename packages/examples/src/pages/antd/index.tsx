@@ -53,6 +53,13 @@ function Page() {
 
   return (
     <div>
+      <div style={{ height: 2000, display: 'flex', flexDirection: 'column', justifyContent: 'space-around' }}>
+        <p>翻滚吧，你就能看到下面的按钮了</p>
+        <p>翻滚吧，你就能看到下面的按钮了</p>
+        <p>翻滚吧，你就能看到下面的按钮了</p>
+        <p>翻滚吧，你就能看到下面的按钮了</p>
+        <p>翻滚吧，你就能看到下面的按钮了</p>
+      </div>
       <Button type="primary" onClick={showDrawer} icon={<PlusOutlined />}>
         New account
       </Button>

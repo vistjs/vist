@@ -1,4 +1,4 @@
-import { renderMouse, renderInput } from './react/action';
+import { renderMouse, renderInput, renderScroll } from './react/action';
 import { renderDrag } from './react/drag';
 import { renderEvent } from './react/event';
 
@@ -16,6 +16,7 @@ export function genRenders(engine: SupportEngine) {
         renderInput,
         renderDrag,
         renderEvent,
+        renderScroll,
       };
     default:
       return unknownEngine(engine);
