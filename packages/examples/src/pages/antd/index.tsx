@@ -35,20 +35,19 @@ function Page() {
     setVisible(false);
   };
 
-  function onChange1(e: any) {
-    debugger;
+  function onChangeInput(e: any) {
     console.log(`change ${e.target.value}`);
   }
 
-  function onChange(checked: boolean) {
+  function onChangeSwitch(checked: boolean) {
     console.log(`switch to ${checked}`);
   }
 
-  function onChange2(e: any) {
+  function onChangeRadio(e: any) {
     console.log(`radio checked = ${e.target.checked}`);
   }
 
-  function onChange3(e: any) {
+  function onChangeCheckbox(e: any) {
     console.log(`checkbox checked = ${e.target.checked}`);
   }
 
@@ -76,7 +75,7 @@ function Page() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="name" label="Name2" rules={[{ required: true, message: 'Please enter user name' }]}>
-                <Input placeholder="Please enter user name" onChange={onChange1} />
+                <Input placeholder="Please enter user name" onChange={onChangeInput} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -164,25 +163,25 @@ function Page() {
             </Col>
             <Col span={12}>
               <Form.Item name="switch" label="Switch">
-                <Switch defaultChecked onChange={onChange} />
+                <Switch defaultChecked onChange={onChangeSwitch} />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="radio" label="Radio">
-                <Radio onChange={onChange2}>Radio</Radio>
+                <Radio onChange={onChangeRadio}>Radio</Radio>
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="checkbox" label="Checkbox">
-                <Checkbox onChange={onChange3}>Checkbox</Checkbox>
+                <Checkbox onChange={onChangeCheckbox}>Checkbox</Checkbox>
               </Form.Item>
             </Col>
           </Row>
         </Form>
       </Drawer>
-      <div className="code-box-demo">
+      <div className="antd-page">
         <div style={{ marginLeft: buttonWidth, whiteSpace: 'nowrap' }}>
           <Tooltip placement="topLeft" title={text}>
             <Button>TL</Button>

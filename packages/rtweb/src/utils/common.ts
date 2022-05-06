@@ -186,3 +186,51 @@ export function cloneKeys(obj: { [key: string]: any }, keys: string[]) {
   });
   return ret;
 }
+
+export function getEventTarget(event: Event): EventTarget | null {
+  try {
+    if ('composedPath' in event) {
+      const path = event.composedPath();
+      if (path.length) {
+        return path[0];
+      }
+    } else if ('path' in event && (event as unknown as { path: EventTarget[] }).path.length) {
+      return (event as unknown as { path: EventTarget[] }).path[0];
+    }
+    return event.target;
+  } catch {
+    return event.target;
+  }
+}
+
+const supportedInputTypes = {
+  color: true,
+  date: true,
+  datetime: true,
+  'datetime-local': true,
+  email: true,
+  month: true,
+  number: true,
+  password: true,
+  range: true,
+  search: true,
+  tel: true,
+  text: true,
+  time: true,
+  url: true,
+  week: true,
+} as any;
+
+export function isTextInputElement(elem: HTMLInputElement) {
+  var nodeName = elem && elem.nodeName && elem.nodeName.toLowerCase();
+
+  if (nodeName === 'input') {
+    return !!supportedInputTypes[elem.type];
+  }
+
+  if (nodeName === 'textarea') {
+    return true;
+  }
+
+  return false;
+}

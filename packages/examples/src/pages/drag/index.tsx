@@ -79,7 +79,7 @@ function Page() {
   }
 
   return (
-    <div className="app">
+    <div className="drag-page">
       <Box card={index === 1} index={1} moveCard={moveCard.bind(null, 1)}></Box>
       <Box card={index === 2} index={2} moveCard={moveCard.bind(null, 2)}></Box>
       <Box card={index === 3} index={3} moveCard={moveCard.bind(null, 3)}></Box>

@@ -12,6 +12,8 @@ export function isMouseEvent(data: any) {
     data.source === IncrementalSource.MouseInteraction &&
     (data.type === MouseInteractions.Click ||
       data.type === MouseInteractions.DblClick ||
+      data.type === MouseInteractions.Blur ||
+      data.type === MouseInteractions.Focus ||
       data.type === MouseInteractions.MouseDown ||
       data.type === MouseInteractions.MouseUp)
   );
@@ -22,6 +24,8 @@ const MouseInteractionName = {
   [MouseInteractions.MouseDown]: 'mousedown',
   [MouseInteractions.Click]: 'click',
   [MouseInteractions.DblClick]: 'dblClick',
+  [MouseInteractions.Blur]: 'blur',
+  [MouseInteractions.Focus]: 'focus',
 };
 
 export function getMouseEventName(data: any) {
@@ -36,20 +40,4 @@ export function setClientXY(nodeId: number, x: number, y: number) {
 
 export function getClientXY(nodeId: number) {
   return nodePosMap[nodeId] || nodePosMap['-99'];
-}
-
-export function getEventTarget(event: Event): EventTarget | null {
-  try {
-    if ('composedPath' in event) {
-      const path = event.composedPath();
-      if (path.length) {
-        return path[0];
-      }
-    } else if ('path' in event && (event as unknown as { path: EventTarget[] }).path.length) {
-      return (event as unknown as { path: EventTarget[] }).path[0];
-    }
-    return event.target;
-  } catch {
-    return event.target;
-  }
 }
