@@ -5,7 +5,7 @@ import { EventWatcher } from './event';
 export const baseWatchers = {
   ActionWatcher,
   DragWatcher,
-  // EventWatcher,
+  EventWatcher,
 };
 
 export const watchers = {

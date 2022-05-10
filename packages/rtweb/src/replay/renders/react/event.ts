@@ -4,17 +4,25 @@ import ReactTestUtils from 'react-dom/test-utils';
 const methodMap = {
   mouseenter: 'mouseEnter',
   mouseleave: 'mouseLeave',
+  mouseover: 'mouseOver',
+  mouseout: 'mouseOut',
 } as any;
 
 export function renderEvent({ dom, data }: RecordDbData) {
   const node = document.elementFromPoint(dom.x, dom.y) as HTMLElement;
-  node &&
-    node.dispatchEvent(
-      new MouseEvent(data?.type, {
-        ...data,
-      })
-    );
-  const method = methodMap[data?.type] || data?.type;
-  // react的mouseenter和mouseleave是由mouseover和mouseover计算出来的 不是mouseenter和mouseleave触发的
-  node && ReactTestUtils.Simulate[method as keyof typeof ReactTestUtils.Simulate](node, data as any);
+  // react will deduction mouseover from mouseout relatedTarget
+  if (data?.relatedTarget && data?.type !== 'mouseover') {
+    data.relatedTarget = document.elementFromPoint(data.relatedTarget.x, data.relatedTarget.y) as HTMLElement;
+  } else {
+    data!.relatedTarget = null;
+  }
+  const event = new MouseEvent(data?.type, {
+    bubbles: true,
+    cancelable: true,
+    ...data,
+  });
+  node && node.dispatchEvent(event);
+  // in react mouseenter and mouseleave is simulated by mouseover mouseout， not mouseenter and mouseleave trigger
+  // const method = methodMap[data?.type] || data?.type;
+  // node && ReactTestUtils.Simulate[method as keyof typeof ReactTestUtils.Simulate](node, data as any);
 }

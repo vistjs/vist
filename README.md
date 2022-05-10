@@ -37,8 +37,8 @@ yarn dev
 - [x] record & replay plugin
 - [x] localdb save
 - [x] package examples use create-react-app
-- [ ] 支持所有 form 表单的输入录制
-- [ ] 支持特殊的鼠标操作：hover、滚动、拖拽
+- [x] 支持所有 form 表单的输入录制
+- [x] 支持特殊的鼠标操作：hover、滚动、拖拽
 - [ ] ctrl 插件。特性：可以识别快捷键，以浮层显示操作 UI。功能：结束录制、打截图断点
 - [ ] 请求 record & mock 插件。 特性：可以拦截记录和 mock 所有请求，支持正则规则。功能：拦截记录到 server、从 server mock 请求
 - [ ] 上传和下载 record 数据通过远程接口

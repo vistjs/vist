@@ -38,6 +38,17 @@ export function setClientXY(nodeId: number, x: number, y: number) {
   nodePosMap['-99'] = nodePosMap[nodeId] = { x, y };
 }
 
-export function getClientXY(nodeId: number) {
-  return nodePosMap[nodeId] || nodePosMap['-99'];
+export function getClientXY(nodeId: any) {
+  if (typeof nodeId === 'number') {
+    return nodePosMap[nodeId] || nodePosMap['-99'];
+  } else {
+    const id = nodeId['__sn']?.id;
+    return nodePosMap[id] || nodePosMap['-99'];
+  }
+}
+
+export function getNodeClientXY(node: any) {
+  const id = node['__sn']?.id;
+  if (typeof id === 'undefined') return null;
+  return nodePosMap[id];
 }

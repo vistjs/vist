@@ -20,7 +20,7 @@ export function renderMouse({ dom, data }: RecordDbData) {
     node.dispatchEvent(
       new MouseEvent(data?.type, {
         bubbles: true,
-        cancelable: false,
+        cancelable: true,
         ...data,
       })
     );

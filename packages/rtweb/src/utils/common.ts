@@ -234,3 +234,12 @@ export function isTextInputElement(elem: HTMLInputElement) {
 
   return false;
 }
+
+export function getReactInstanceFromNode(targetNode: any) {
+  const reactKey = Object.keys(targetNode).find((key) => key.startsWith('__reactProps$'));
+  if (reactKey) {
+    return targetNode[reactKey];
+  }
+
+  return null;
+}

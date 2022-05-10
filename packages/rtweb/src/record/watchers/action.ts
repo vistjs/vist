@@ -2,7 +2,7 @@ import { Watcher } from '../watcher';
 import { eventWithTime, inputData, mouseInteractionData, scrollData } from 'rrweb/typings/types.d';
 import { record, EventType, IncrementalSource, MouseInteractions } from 'rrweb';
 import { isMouseEvent, getMouseEventName, setClientXY, getClientXY } from '../../utils';
-import { RecordType, RecordData } from '../../types';
+import { RecordType, RecordData, RecorderStatus } from '../../types';
 
 function nodeStore(node: any) {
   if (node.id) {
@@ -150,14 +150,16 @@ const interestedRecords: Rule[] = [
 export class ActionWatcher extends Watcher<any> {
   private stopRecord: Function | undefined;
   public data: eventWithTime[] = [];
+  public status: RecorderStatus = RecorderStatus.PAUSE;
 
   protected init() {
     this.context.addEventListener('beforeunload', this.handleFn);
 
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const that = this;
     this.stopRecord = record({
-      emit(recordData) {
+      emit: (recordData) => {
+        if (this.status === RecorderStatus.HALT) {
+          return;
+        }
         // console.log(
         //   //@ts-ignore xxx
         //   `TYPE:${recordData.type}, source: ${
@@ -178,21 +180,24 @@ export class ActionWatcher extends Watcher<any> {
           // console.log(`mirror: `, record.mirror);
         }
 
-        that.filter(recordData);
+        this.filter(recordData);
       },
       sampling: {
         mousemove: 50,
-        // 设置滚动事件的触发频率
-        scroll: 150, // 每 150ms 最多触发一次
+        // Set the trigger frequency of scroll events
+        scroll: 150, // Trigger at most once every 150ms
         // set the interval of media interaction event
         media: 800,
-        // 设置输入事件的录制时机
-        input: 'last', // 连续输入时，只录制最终值
+        // Set the recording time of the input event
+        input: 'last', // For continuous input, only the final value is recorded
       },
     });
 
+    this.status = RecorderStatus.RUNNING;
+
     this.uninstall(() => {
       this.stopRecord?.();
+      this.status = RecorderStatus.HALT;
     });
   }
 

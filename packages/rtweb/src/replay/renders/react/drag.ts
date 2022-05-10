@@ -17,7 +17,7 @@ export function renderDrag({ dom, data }: RecordDbData) {
   const eventData = {
     ...data,
     bubbles: true,
-    cancelable: false,
+    cancelable: true,
   } as any;
 
   const draggingInfo = eventData.draggingInfo;
@@ -40,7 +40,7 @@ export function renderDrag({ dom, data }: RecordDbData) {
   node.dispatchEvent(
     new DragEvent(type, {
       bubbles: true,
-      cancelable: false,
+      cancelable: true,
       dataTransfer: eventData.dataTransfer,
     })
   );
@@ -49,8 +49,8 @@ export function renderDrag({ dom, data }: RecordDbData) {
     wm.delete(draggingNode);
   }
 
-  const method = methodMap[type] || type;
   // Simulate canot trigger the listener no the real node，it collect listener on react props
   // so react-dnd will
+  // const method = methodMap[type] || type;
   // ReactTestUtils.Simulate[method as keyof typeof ReactTestUtils.Simulate](node, eventData as any);
 }
