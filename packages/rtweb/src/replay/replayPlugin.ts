@@ -2,7 +2,7 @@ import { PlayerModule } from '.';
 import { RECORD_TABLE } from '../constant';
 import { RecordDbData, RecordData } from '../types';
 
-export class ctrlPlugin {
+export class replayPlugin {
   private dbName: string;
   private records: RecordDbData[] = [];
 

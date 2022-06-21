@@ -1,4 +1,4 @@
-import { watchers, baseWatchers } from './watchers';
+import { watchers } from './watchers';
 import { logError, getTime, tempEmptyFn, tempEmptyPromise, delay } from '../utils';
 import { Pluginable } from './pluginable';
 import { Watcher } from './watcher';
@@ -32,8 +32,8 @@ export class RecorderModule extends Pluginable {
   } as RecordOptions;
   private defaultMiddleware: RecorderMiddleware[] = [];
   private listenStore: Set<Function> = new Set();
-  private middleware: RecorderMiddleware[] = [...this.defaultMiddleware];
-  private watchers: Array<typeof Watcher>;
+  public middleware: RecorderMiddleware[] = [...this.defaultMiddleware];
+  private watchers: Array<Watcher<any>>;
   private watchersInstance = new Map<string, Watcher<RecordData>>();
   private watchesReadyPromise;
   private watcherResolve: Function;
@@ -46,7 +46,7 @@ export class RecorderModule extends Pluginable {
   constructor(options?: RecordOptions) {
     super(options);
     this.initOptions(options);
-    this.watchers = this.getWatchers() as typeof Watcher[];
+    this.watchers = this.getWatchers();
     this.watchesReadyPromise = new Promise((resolve) => (this.watcherResolve = resolve));
     this.init();
   }
@@ -58,10 +58,9 @@ export class RecorderModule extends Pluginable {
 
   private init() {
     this.startTime = getTime();
-    const options = this.options;
     this.loadPlugins();
     this.hooks.beforeRun.call(this);
-    this.record(options);
+    this.record(this.options);
     this.hooks.run.call(this);
   }
 
@@ -101,10 +100,10 @@ export class RecorderModule extends Pluginable {
 
   private getWatchers() {
     const { disableWatchers } = this.options;
-    const watchersList = [...Object.values(watchers)] as typeof Watcher[];
+    const watchersList = [...Object.values(watchers)];
 
     return watchersList.filter((watcher) => {
-      return !~disableWatchers.indexOf(watcher.name as keyof typeof watchers);
+      return !~disableWatchers.indexOf(watcher.constructor.name as keyof typeof watchers);
     });
   }
 
@@ -120,11 +119,9 @@ export class RecorderModule extends Pluginable {
     this.status = RecorderStatus.RUNNING;
     let activeWatchers = [...this.watchers, ...this.pluginWatchers];
 
-    activeWatchers = [...Object.values(baseWatchers)] as typeof Watcher[];
-
     const onEmit = (options: RecordOptions) => {
       const emitTasks: Array<RecordData> = [];
-      const { middleware: rootMiddleware } = this.options.rootRecorder || { middleware: [] };
+      const { middleware: rootMiddleware } = options.rootRecorder || { middleware: [] };
       const execTasksChain = (() => {
         let concurrency = 0;
         const MAX_CONCURRENCY = 1;
@@ -158,16 +155,16 @@ export class RecorderModule extends Pluginable {
 
     const emit = onEmit(options);
 
-    activeWatchers.forEach((Watcher) => {
+    activeWatchers.forEach((watcher) => {
       try {
-        const watcher = new Watcher({
+        watcher.install({
           recorder: this,
           context: options && options.context,
           listenStore: this.listenStore,
           emit,
           watchers: this.watchersInstance,
         });
-        this.watchersInstance.set(Watcher.name, watcher);
+        this.watchersInstance.set(watcher.constructor.name, watcher);
       } catch (e) {
         logError(e);
       }

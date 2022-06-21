@@ -29,6 +29,7 @@
   "dependencies": {
     "@types/node": "^17.0.25",
     "@types/react-dom": "^18.0.1",
+    "hotkeys-js": "^3.9.4",
     "localforage": "^1.10.0",
     "mobx": "^6.5.0",
     "react-dom": "^18.0.0",
