@@ -1,8 +1,7 @@
 import { RecorderModule } from '.';
 import hotkeys from 'hotkeys-js';
-import { Watcher } from './watcher';
-import { RECORD_TABLE } from '../constant';
-import { RecordDbData, RecordData } from '../types';
+import { Watcher, WatcherOptions } from './watcher';
+import { RecordType } from '../types';
 
 type OPTIONS = {
   stopKey?: string;
@@ -10,13 +9,17 @@ type OPTIONS = {
 };
 
 class HotKeysWatcher extends Watcher<any> {
-  init() {
+  init(options: WatcherOptions<any>) {
+    const { recorder } = options;
+    let id = 1;
     hotkeys([this.watchOptions.stopKey, this.watchOptions.captureKey].join(','), (event, handler) => {
       if (handler.key === this.watchOptions.stopKey) {
         console.log('want to stop');
+        recorder.destroy();
       }
       if (handler.key === this.watchOptions.captureKey) {
         console.log('want to capture');
+        this.emitData(RecordType.CAPTURE, null, { data: { id: id++ } });
       }
       event.preventDefault();
       return false;
@@ -27,7 +30,7 @@ class HotKeysWatcher extends Watcher<any> {
 const defaultStopKey = 'ctrl+s';
 const defaultCaptureKey = 'ctrl+c';
 
-export class ctrlPlugin {
+export class CtrlPlugin {
   private stopKey: string;
   private captureKey: string;
 

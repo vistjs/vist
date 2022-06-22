@@ -1,26 +1,24 @@
 import { PlayerModule } from '.';
-import { RECORD_TABLE } from '../constant';
-import { RecordDbData, RecordData } from '../types';
+import { RecordDbData, RecordType } from '../types';
+import domtoimage from 'dom-to-image';
 
-export class replayPlugin {
-  private dbName: string;
-  private records: RecordDbData[] = [];
-
+export class ReplayPlugin {
   constructor() {}
 
   apply(rePlayer: PlayerModule) {
     const { plugin } = rePlayer;
 
-    // document.addEventListener(
-    //   'mouseenter',
-    //   () => {
-    //     console.log('trigger mouseenter');
-    //   },
-    //   { capture: true }
-    // );
     plugin('render', (_, record: RecordDbData) => {
-      // console.log(`outer record:`, { ...record, type: record.type, time: record.time });
+      console.log(`outer record:`, { ...record, type: record.type, time: record.time });
       // this.records.push({ type: record.type, time: record.time });
+      if (record.type === RecordType.CAPTURE) {
+        domtoimage.toJpeg(document.body, { quality: 0.95 }).then(function (dataUrl: any) {
+          var link = document.createElement('a');
+          link.download = `capture_${record.data?.id || 1}.jpeg`;
+          link.href = dataUrl;
+          link.click();
+        });
+      }
     });
   }
 }

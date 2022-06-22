@@ -169,14 +169,14 @@ export class ActionWatcher extends Watcher<any> {
         //   recordData.data
         // );
         if (recordData.type === 3) {
-          console.log(
-            //@ts-ignore xxx
-            `rrweb record, source:${sourceName[recordData.data.source]}, type: ${
-              //@ts-ignore xxx
-              MouseInteractionName[recordData.data.type]
-            }, data: `,
-            recordData.data
-          );
+          // console.log(
+          //   //@ts-ignore xxx
+          //   `rrweb record, source:${sourceName[recordData.data.source]}, type: ${
+          //     //@ts-ignore xxx
+          //     MouseInteractionName[recordData.data.type]
+          //   }, data: `,
+          //   recordData.data
+          // );
           // console.log(`mirror: `, record.mirror);
         }
 

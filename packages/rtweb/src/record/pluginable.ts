@@ -3,7 +3,7 @@ import { SyncHook } from 'tapable';
 import { RecordOptions } from '../types';
 import { logError } from '../utils';
 import { Watcher } from './watcher';
-import { ctrlPlugin } from './ctrlPlugin';
+import { CtrlPlugin } from './ctrlPlugin';
 
 export interface RecorderPlugin {
   apply(recorder: Pluginable): void;
@@ -21,7 +21,7 @@ export class Pluginable {
 
   constructor(options?: RecordOptions) {
     this.defaultPlugins.push(
-      new ctrlPlugin({
+      new CtrlPlugin({
         stopKey: options?.hotkeys?.stop,
         captureKey: options?.hotkeys?.capture,
       })
