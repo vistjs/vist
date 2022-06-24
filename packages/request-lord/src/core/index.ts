@@ -1,5 +1,5 @@
 import ConfigCenter, { Config } from './ConfigCenter';
-import { convertHeadersToObject, convertObjectToHeaders } from './utils/fetchUtils';
+import { convertHeadersToObject } from './utils/fetchUtils';
 
 /**
  * 请求拦截器
@@ -13,7 +13,7 @@ export default class Inteceptor {
   private configCenter = new ConfigCenter();
   private global: Window | typeof globalThis;
 
-  private fetch;
+  private fetch: (input: URL | RequestInfo, init?: AnyObject) => Promise<Response>;
 
   constructor({
     requestConfigs,
@@ -58,10 +58,14 @@ export default class Inteceptor {
 
   private inteceptFetch() {
     this.fetch = this.global.fetch.bind(this.global);
-    this.global.fetch = (input: string | FetchRequest, init: AnyObject) => {
+    this.global.fetch = (input: URL | RequestInfo, init?: AnyObject) => {
+      // 解析请求 url 与各种参数
       let url: string;
-      let params: FetchRequest | AnyObject;
-      if (typeof input === 'object') {
+      let params: Request | AnyObject;
+      if (input instanceof URL) {
+        url = input.href;
+        params = init || {};
+      } else if (typeof input === 'object') {
         url = input.url;
         params = input;
       } else {
@@ -70,18 +74,17 @@ export default class Inteceptor {
       }
       const method = (params && params.method ? params.method : 'GET') as unknown as Method;
       const requestUrl = this.getFullRequestUrl(url);
-      console.log('url:', url, requestUrl);
 
       return new Promise((resolve, reject) => {
         const commonConfig = this.configCenter.getCommonConfig();
         const requestConfig = this.configCenter.getRequestConfig(requestUrl, method);
 
         // 指定 url 和 method 的配置比公共配置优先
-
         const requestCatcher = requestConfig?.requestCatcher || commonConfig.requestCatcher;
         const requestHanler = requestConfig?.requestHanler || commonConfig.requestHanler;
         const responseCatcher = requestConfig?.responseCatcher || commonConfig.responseCatcher;
 
+        // 转换请求入参
         let requestParams: RequestPayload = {
           url: requestUrl,
           method,
@@ -93,43 +96,46 @@ export default class Inteceptor {
           requestParams = requestCatcher(requestParams);
         }
 
-        const resResolver = (resp: Response, body) => {
-          let result = resp;
+        // 转换返回数据
+        const resResolver = (resp: Response, body: string) => {
           if (responseCatcher) {
-            result = {
-              ...result,
-              ...responseCatcher({
-                status: resp.status,
-                statusText: resp.statusText,
-                headers: convertHeadersToObject(resp.headers),
-                body: resp.body,
-              }),
-            };
+            const transformedBody = responseCatcher({
+              status: resp.status,
+              statusText: resp.statusText,
+              headers: convertHeadersToObject(resp.headers),
+              body,
+            });
+            const { status, statusText } = transformedBody;
+            const headers = new Headers({ ...transformedBody.headers });
+
+            const response = new Response(transformedBody.body as BodyInit, { status, statusText, headers });
+            Object.defineProperty(response, 'url', { value: requestUrl });
+            resolve(response);
+          } else {
+            resolve(resp);
           }
         };
 
-        // if (!mockItem) {
-        //   me.fetch(requestUrl, params).then(resolve).catch(reject);
-        //   return;
-        // }
+        // 替代真实请求
+        const reqPayload = {
+          ...params,
+          ...requestParams,
+        };
+        if (requestHanler) {
+          const mockResp = requestHanler(requestParams);
+          const { status, statusText } = mockResp;
+          const headers = new Headers({ ...mockResp.headers });
 
-        // const requestInfo = me.getRequestInfo({ ...params, url: requestUrl, method: method as HttpVerb });
-        // const remoteInfo = mockItem?.getRemoteInfo(requestUrl);
-        // if (remoteInfo) {
-        //   params.method = remoteInfo.method || method;
-        //   me.fetch(remoteInfo.url, params)
-        //     .then((fetchResponse: FetchResponse) => {
-        //       me.sendRemoteResult(fetchResponse, mockItem, requestInfo, resolve);
-        //     })
-        //     .catch(reject);
-        //   return;
-        // }
-
-        // me.doMockRequest(mockItem, requestInfo, resolve).then((isBypassed) => {
-        //   if (isBypassed) {
-        //     me.fetch(requestUrl, params).then(resolve).catch(reject);
-        //   }
-        // });
+          const response = new Response(mockResp.body as BodyInit, { status, statusText, headers });
+          Object.defineProperty(response, 'url', { value: requestUrl });
+          resolve(response);
+        } else {
+          this.fetch(reqPayload.url, reqPayload)
+            .then((response: Response) => {
+              response.text().then((body) => resResolver(response, body));
+            })
+            .catch(reject);
+        }
       });
     };
   }
