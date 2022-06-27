@@ -23,22 +23,22 @@ export class Inteceptor {
   }
 
   // 设置 302 重定向
-  replace(url: string): Inteceptor {
+  replace(params: RequestPayload): Inteceptor {
     return this;
   }
 
   // 返回指定状态码（不发送请求）
-  statusCode(code: number): Inteceptor {
+  statusCode(params: RequestPayload): Inteceptor {
     return this;
   }
 
   // 修改状态码（发送请求后）
-  replaceStatus(code: number): Inteceptor {
+  replaceStatus(params: ResponsePayload): Inteceptor {
     return this;
   }
 
   // 修改请求方法
-  method(method: string): Inteceptor {
+  method(params: RequestPayload): Inteceptor {
     return this;
   }
 
@@ -76,7 +76,7 @@ export class Inteceptor {
   }
 
   // 设置请求 CORS
-  reqCors(configs: { origin?: string; method?: string; headers?: string }): Inteceptor {
+  reqCors(params: RequestPayload): Inteceptor {
     return this;
   }
 
@@ -93,22 +93,27 @@ export class Inteceptor {
   }
 
   // 设置请求头
-  reqHeaders(headers: { [key: string]: string }): Inteceptor {
+  reqHeaders(params: RequestPayload): Inteceptor {
     return this;
   }
 
   // 设置响应头
-  resHeaders(headers: { [key: string]: string }): Inteceptor {
+  resHeaders(params: ResponsePayload): Inteceptor {
     return this;
   }
 
   // 设置请求体
-  reqBody(body: string): Inteceptor {
+  reqBody(params: RequestPayload): Inteceptor {
     return this;
   }
 
   // 设置响应体
-  resBody(body: string): Inteceptor {
+  resBody(params: RequestPayload): Inteceptor {
+    return this;
+  }
+
+  // 捕获响应
+  response(params: ResponsePayload): Inteceptor {
     return this;
   }
 }

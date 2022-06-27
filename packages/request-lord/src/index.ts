@@ -5,11 +5,8 @@ const inteceptor = new Inteceptor();
 
 export default function lord(pattern: string) {
   const m = new Matcher(pattern);
-  inteceptor.saveRequestConfig({
-    pattern,
-    requestCatcher: m.requestCatcher,
-    requestHanler: m.requestHanler,
-    responseCatcher: m.responseCatcher,
-  });
+  const config = { pattern };
+  Object.setPrototypeOf(config, m);
+  inteceptor.saveRequestConfig(config);
   return m;
 }

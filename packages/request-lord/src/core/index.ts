@@ -121,6 +121,7 @@ export default class Inteceptor {
           ...params,
           ...requestParams,
         };
+        console.log('requestHanler', requestConfig);
         if (requestHanler) {
           const mockResp = requestHanler(requestParams);
           const { status, statusText } = mockResp;

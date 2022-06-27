@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './styles.css';
 
 function Page() {
@@ -29,6 +29,18 @@ function Page() {
   function onChangeSelect(ev: any) {
     console.log(`onChangeSelect, ${ev.target.value}`);
   }
+
+  useEffect(() => {
+    fetch('https://es6.ruanyifeng.com/', {
+      mode: 'no-cors',
+    })
+      .then((response) => {
+        return response.text();
+      })
+      .then((text) => {
+        console.log('fetch response', text);
+      });
+  }, []);
 
   return (
     <div className="form-page">

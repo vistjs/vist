@@ -16,6 +16,7 @@ export default class ConfigCenter {
 
   constructor() {
     this.requestConfigs = [];
+    this.commonConfig = { pattern: '*' };
   }
 
   findRequestConfig(url?: string, method?: Method) {
