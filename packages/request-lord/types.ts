@@ -9,51 +9,51 @@ interface MockConfig {
 
 interface Configs extends Array<MockConfig> {}
 
-class Inteceptor {
+class Interceptor {
   constructor(url: string | MockConfig) {}
 
   // 保留匹配的请求
-  includeFilter(filter: string): Inteceptor {
+  includeFilter(filter: string): Interceptor {
     return this;
   }
 
   // 排除的请求（优先级比匹配高）
-  exlcudeFilter(filter: string): Inteceptor {
+  exlcudeFilter(filter: string): Interceptor {
     return this;
   }
 
   // 设置 302 重定向
-  replace(url: string): Inteceptor {
+  replace(url: string): Interceptor {
     return this;
   }
 
   // 返回指定状态码（不发送请求）
-  statusCode(code: number): Inteceptor {
+  statusCode(code: number): Interceptor {
     return this;
   }
 
   // 修改状态码（发送请求后）
-  replaceStatus(code: number): Inteceptor {
+  replaceStatus(code: number): Interceptor {
     return this;
   }
 
   // 修改请求方法
-  method(method: string): Inteceptor {
+  method(method: string): Interceptor {
     return this;
   }
 
   // 设置请求延时
-  reqDelay(delay: number): Inteceptor {
+  reqDelay(delay: number): Interceptor {
     return this;
   }
 
   // 设置响应延时
-  resDelay(delay: number): Inteceptor {
+  resDelay(delay: number): Interceptor {
     return this;
   }
 
   // 设置请求 Cookie
-  reqCookie(cookies: { [key: string]: string }): Inteceptor {
+  reqCookie(cookies: { [key: string]: string }): Interceptor {
     return this;
   }
 
@@ -71,12 +71,12 @@ class Inteceptor {
           httpOnly?: boolean;
           sameSite?: string;
         };
-  }): Inteceptor {
+  }): Interceptor {
     return this;
   }
 
   // 设置请求 CORS
-  reqCors(configs: { origin?: string; method?: string; headers?: string }): Inteceptor {
+  reqCors(configs: { origin?: string; method?: string; headers?: string }): Interceptor {
     return this;
   }
 
@@ -88,27 +88,27 @@ class Inteceptor {
     maxAge?: number;
     credentails?: boolean;
     methods?: string;
-  }): Inteceptor {
+  }): Interceptor {
     return this;
   }
 
   // 设置请求头
-  reqHeaders(headers: { [key: string]: string }): Inteceptor {
+  reqHeaders(headers: { [key: string]: string }): Interceptor {
     return this;
   }
 
   // 设置响应头
-  resHeaders(headers: { [key: string]: string }): Inteceptor {
+  resHeaders(headers: { [key: string]: string }): Interceptor {
     return this;
   }
 
   // 设置请求体
-  reqBody(body: string): Inteceptor {
+  reqBody(body: string): Interceptor {
     return this;
   }
 
   // 设置响应体
-  resBody(body: string): Inteceptor {
+  resBody(body: string): Interceptor {
     return this;
   }
 }
