@@ -20,7 +20,8 @@ declare type RequestPayload = {
   url: string;
   method: Method;
   headers: Record<string, string> | unknown;
-  body: unknown;
+  body?: unknown;
+  rawBody?: unknown;
 };
 
 declare type ResponsePayload = {
@@ -36,3 +37,10 @@ declare type FetchRequest = {
   headers: Record<string, string>;
   body: unknown;
 };
+
+declare interface XMLHttpRequestInstance extends XMLHttpRequest {
+  isMockRequest: string;
+  mockResponse: ResponsePayload;
+  requestInfo: RequestPayload;
+  requestArgs: (Method | string | boolean | null)[];
+}

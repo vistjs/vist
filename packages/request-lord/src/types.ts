@@ -9,51 +9,51 @@ interface MockConfig {
 
 interface Configs extends Array<MockConfig> {}
 
-export class Inteceptor {
+export class Interceptor {
   constructor(url: string | MockConfig) {}
 
   // 保留匹配的请求
-  includeFilter(filter: string): Inteceptor {
+  includeFilter(filter: string): Interceptor {
     return this;
   }
 
   // 排除的请求（优先级比匹配高）
-  excludeFilter(filter: string): Inteceptor {
+  excludeFilter(filter: string): Interceptor {
     return this;
   }
 
   // 设置 302 重定向
-  replace(params: RequestPayload): Inteceptor {
+  replace(params: RequestPayload): Interceptor {
     return this;
   }
 
   // 返回指定状态码（不发送请求）
-  statusCode(params: RequestPayload): Inteceptor {
+  statusCode(params: RequestPayload): Interceptor {
     return this;
   }
 
   // 修改状态码（发送请求后）
-  replaceStatus(params: ResponsePayload): Inteceptor {
+  replaceStatus(params: ResponsePayload): Interceptor {
     return this;
   }
 
   // 修改请求方法
-  method(params: RequestPayload): Inteceptor {
+  method(params: RequestPayload): Interceptor {
     return this;
   }
 
   // 设置请求延时
-  reqDelay(delay: number): Inteceptor {
+  reqDelay(delay: number): Interceptor {
     return this;
   }
 
   // 设置响应延时
-  resDelay(delay: number): Inteceptor {
+  resDelay(delay: number): Interceptor {
     return this;
   }
 
   // 设置请求 Cookie
-  reqCookie(cookies: { [key: string]: string }): Inteceptor {
+  reqCookie(cookies: { [key: string]: string }): Interceptor {
     return this;
   }
 
@@ -71,12 +71,12 @@ export class Inteceptor {
           httpOnly?: boolean;
           sameSite?: string;
         };
-  }): Inteceptor {
+  }): Interceptor {
     return this;
   }
 
   // 设置请求 CORS
-  reqCors(params: RequestPayload): Inteceptor {
+  reqCors(params: RequestPayload): Interceptor {
     return this;
   }
 
@@ -88,32 +88,32 @@ export class Inteceptor {
     maxAge?: number;
     credentails?: boolean;
     methods?: string;
-  }): Inteceptor {
+  }): Interceptor {
     return this;
   }
 
   // 设置请求头
-  reqHeaders(params: RequestPayload): Inteceptor {
+  reqHeaders(params: RequestPayload): Interceptor {
     return this;
   }
 
   // 设置响应头
-  resHeaders(params: ResponsePayload): Inteceptor {
+  resHeaders(params: ResponsePayload): Interceptor {
     return this;
   }
 
   // 设置请求体
-  reqBody(params: RequestPayload): Inteceptor {
+  reqBody(params: RequestPayload): Interceptor {
     return this;
   }
 
   // 设置响应体
-  resBody(params: RequestPayload): Inteceptor {
+  resBody(params: RequestPayload): Interceptor {
     return this;
   }
 
   // 捕获响应
-  response(params: ResponsePayload): Inteceptor {
+  response(params: ResponsePayload): Interceptor {
     return this;
   }
 }

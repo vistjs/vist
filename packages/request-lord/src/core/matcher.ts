@@ -1,4 +1,4 @@
-import { Inteceptor } from '../types';
+import { Interceptor } from '../types';
 
 const HOOKS = [
   'replace',
@@ -15,7 +15,7 @@ const HOOKS = [
   'resHeaders',
   'response',
 ];
-class Matcher extends Inteceptor {
+class Matcher extends Interceptor {
   hooks: {
     [key: string]: Function;
   };
