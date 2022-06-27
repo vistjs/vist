@@ -156,13 +156,14 @@ export function removeGlobalVariables() {
   });
 }
 
-export async function getRecordsFromDB(dbName: string) {
+export async function getRecordsFromDB(dbName: string, id = 1) {
   const store = localforage.createInstance({
     name: dbName,
   });
   try {
-    const value = await store.getItem(RECORD_TABLE);
-    return value;
+    const info = (await store.getItem(`id_${id}`)) as Object;
+    const frames = await store.getItem(`${RECORD_TABLE}_${id}`);
+    return { frames, ...info };
   } catch (err) {
     console.log(err);
     return [];

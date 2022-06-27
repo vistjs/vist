@@ -9,7 +9,7 @@ interface MockConfig {
 
 interface Configs extends Array<MockConfig> {}
 
-class Interceptor {
+export class Interceptor {
   constructor(url: string | MockConfig) {}
 
   // 保留匹配的请求
@@ -18,7 +18,7 @@ class Interceptor {
   }
 
   // 排除的请求（优先级比匹配高）
-  exlcudeFilter(filter: string): Interceptor {
+  excludeFilter(filter: string): Interceptor {
     return this;
   }
 

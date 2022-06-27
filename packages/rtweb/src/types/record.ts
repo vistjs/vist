@@ -4,20 +4,19 @@ import { RecorderModule } from '../record';
 import { watchers } from '../record/watchers';
 import { eventWithTime } from 'rrweb/typings/types.d';
 
-interface RecordOptionsBase {
+export interface RecordOptions {
   context?: Window;
   rootContext?: Window;
   rootRecorder?: RecorderModule;
   disableWatchers?: Array<keyof typeof watchers>;
-}
-
-export interface RecordOptions extends RecordOptionsBase {
   plugins?: RecorderPlugin[];
+  hotkeys?: {
+    stop?: string;
+    capture?: string;
+  };
 }
 
-export interface RecordInternalOptions extends Required<RecordOptions> {
-  context: Window;
-}
+export interface RecordInternalOptions extends Required<RecordOptions> {}
 
 export type WatcherArgs<T extends RecordData, WatchersInstance = any, Recorder = any> = {
   recorder: Recorder;
@@ -39,7 +38,7 @@ export type RecordData = {
 export type RecordDbData = {
   type: RecordType;
   time: number;
-  dom: { x: number; y: number };
+  dom?: { x: number; y: number };
   data?: {
     [k: string]: any;
   };
@@ -51,6 +50,7 @@ export enum RecordType {
   'DRAG',
   'EVENT',
   'SCROLL',
+  'CAPTURE',
 }
 
 export enum RecorderStatus {

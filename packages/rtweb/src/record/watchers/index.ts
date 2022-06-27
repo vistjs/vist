@@ -2,10 +2,10 @@ import { ActionWatcher } from './action';
 import { DragWatcher } from './drag';
 import { EventWatcher } from './event';
 
-export const baseWatchers = {
-  ActionWatcher,
-  DragWatcher,
-  EventWatcher,
+const baseWatchers = {
+  ActionWatcher: new ActionWatcher(),
+  DragWatcher: new DragWatcher(),
+  EventWatcher: new EventWatcher(),
 };
 
 export const watchers = {

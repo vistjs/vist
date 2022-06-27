@@ -3,6 +3,7 @@ import { SyncHook } from 'tapable';
 import { RecordOptions } from '../types';
 import { logError } from '../utils';
 import { Watcher } from './watcher';
+import { CtrlPlugin } from './ctrlPlugin';
 
 export interface RecorderPlugin {
   apply(recorder: Pluginable): void;
@@ -15,10 +16,17 @@ type IHOOK = Record<HooksType, SyncHook<any, any, any>>;
 // record`s plugin use to extend emit record
 export class Pluginable {
   protected hooks: IHOOK;
-  private defaultPlugins: RecorderPlugin[] = [];
-  public pluginWatchers: typeof Watcher[] = [];
+  protected defaultPlugins: RecorderPlugin[] = [];
+  public pluginWatchers: Watcher<any>[] = [];
 
   constructor(options?: RecordOptions) {
+    this.defaultPlugins.push(
+      new CtrlPlugin({
+        stopKey: options?.hotkeys?.stop,
+        captureKey: options?.hotkeys?.capture,
+      })
+    );
+
     this.initPlugin(options);
 
     const DEFAULT_HOOKS = {
@@ -70,7 +78,7 @@ export class Pluginable {
 
   private plugins: RecorderPlugin[] = [];
 
-  public addWatcher(watcher: typeof Watcher) {
+  public addWatcher = (watcher: Watcher<any>) => {
     this.pluginWatchers.push(watcher);
-  }
+  };
 }

@@ -15,7 +15,7 @@ export interface ReplayOptions {
   plugins?: ReplayerPlugin[];
 }
 
-export interface ReplayInternalOptions extends ReplayOptions {
+export interface ReplayInternalOptions extends Required<ReplayOptions> {
   destroyStore: Set<Function>;
   autoplay: boolean;
   target: string | HTMLElement | Window;

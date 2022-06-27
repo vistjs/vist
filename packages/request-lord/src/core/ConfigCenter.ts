@@ -3,7 +3,7 @@
  */
 
 export type Config = {
-  url?: string;
+  pattern: string;
   method?: Method;
   requestCatcher?: (params: RequestPayload) => RequestPayload;
   requestHanler?: (params: RequestPayload) => ResponsePayload;
@@ -20,7 +20,7 @@ export default class ConfigCenter {
 
   findRequestConfig(url?: string, method?: Method) {
     // url 作为标识符
-    const index = this.requestConfigs.findIndex((c) => c.url === url && c.method === method);
+    const index = this.requestConfigs.findIndex((c) => c.pattern === url);
     if (index >= 0) {
       return {
         index,
@@ -32,7 +32,7 @@ export default class ConfigCenter {
   }
 
   saveRequestConfig(config: Config) {
-    const conf = this.findRequestConfig(config.url, config.method);
+    const conf = this.findRequestConfig(config.pattern, config.method);
     if (conf) {
       this.requestConfigs[conf.index] = {
         ...conf.config,
