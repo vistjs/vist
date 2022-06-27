@@ -2,7 +2,7 @@ import { SyncBailHook } from 'tapable';
 import { ReplayOptions } from '../types';
 import { logError } from '../utils';
 import { Store } from './stores';
-
+import { ReplayPlugin } from './replayPlugin';
 export interface ReplayerPlugin {
   apply(recorder: Pluginable): void;
 }
@@ -17,6 +17,8 @@ export class Pluginable {
   private defaultPlugins: ReplayerPlugin[] = [];
 
   constructor(options?: ReplayOptions) {
+    this.defaultPlugins.push(new ReplayPlugin());
+
     this.initPlugin(options);
 
     const DEFAULT_HOOKS = {

@@ -8,10 +8,17 @@ export class Watcher<T extends RecordData> {
   recorder: RecorderModule;
   context: Window;
   private emit: RecordEvent<RecordData>;
-  options: WatcherArgs<T>;
+  watchOptions: any;
+  options: WatcherOptions<T>;
   recordOptions: RecordInternalOptions;
 
-  constructor(options: WatcherArgs<T>) {
+  constructor(options?: any) {
+    this.watchOptions = options;
+  }
+
+  protected init(options: WatcherOptions<T>): void {}
+
+  public install(options: WatcherOptions<T>) {
     const { emit, context, recorder } = options;
     this.options = options;
     this.recorder = recorder;
@@ -20,8 +27,6 @@ export class Watcher<T extends RecordData> {
     this.emit = emit;
     this.init(options);
   }
-
-  protected init(options: WatcherOptions<T>): void {}
 
   public uninstall(fn: Function) {
     this.options.listenStore.add(fn);
