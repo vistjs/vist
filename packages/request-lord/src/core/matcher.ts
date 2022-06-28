@@ -78,7 +78,6 @@ class Matcher extends Interceptor {
     let { url, method, headers, body } = params;
     const status = this.callHook('replaceStatus', [params]) || 200;
     const resBody = this.callHook('resBody', [params]) || '';
-    console.log('requestHanler', resBody);
     return {
       status,
       statusText: '', // TODO
@@ -100,27 +99,6 @@ class Matcher extends Interceptor {
       body,
     };
   }
-}
-
-function trackClass(cls: typeof Matcher) {
-  return new Proxy(cls, {
-    construct(target, args) {
-      const obj = new target(args[0]);
-      const proxy = new Proxy(obj, {
-        get(target, name, receiver) {
-          // console.log('MatcherModule get', target, obj, receiver);
-          //   if (name === 'requestHanler') {
-          //     console.log('get requestHanler', proxy.hooks.resBody);
-          //     if (!target.hooks.statusCode && !target.hooks.resBody) {
-          //       return null;
-          //     }
-          //   }
-          return Reflect.get(target, name, receiver);
-        },
-      });
-      return proxy;
-    },
-  });
 }
 
 export default Matcher;
