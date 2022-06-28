@@ -95,9 +95,10 @@ export default class XMLHttpRequestInterceptor {
             }
 
             if (requestHanler) {
-              const response = requestHanler(this.requestInfo);
-              this.mockResponse = responseCatcher ? responseCatcher(response) : response;
-              me.sendResult(this);
+              requestHanler(this.requestInfo).then((response) => {
+                this.mockResponse = responseCatcher ? responseCatcher(response) : response;
+                me.sendResult(this);
+              });
             } else {
               me.sendRemoteRequest(this);
             }
@@ -120,6 +121,8 @@ export default class XMLHttpRequestInterceptor {
       if (newXhr.readyState === 4) {
         const { responseCatcher } = this.host.getHandlers(requestInfo.url, requestInfo.method);
         const remoteResponse: ResponsePayload = {
+          url: requestInfo.url,
+          method: requestInfo.method,
           status: newXhr.status,
           statusText: newXhr.statusText,
           headers: newXhr

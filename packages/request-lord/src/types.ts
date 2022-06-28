@@ -9,6 +9,34 @@ interface MockConfig {
 
 interface Configs extends Array<MockConfig> {}
 
+export enum Method {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  PATCH = 'PATCH',
+  DELETE = 'DELETE',
+  HEAD = 'HEAD',
+  ANY = 'ANY',
+}
+
+export type RequestPayload = {
+  url: string;
+  method: Method;
+  headers: Record<string, string> | unknown;
+  body?: unknown;
+  rawBody?: unknown;
+};
+
+export type ResponsePayload = {
+  url: string;
+  method: Method;
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+  body: string;
+  delay?: number;
+};
+
 export class Interceptor {
   constructor(url: string | MockConfig) {}
 

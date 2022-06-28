@@ -1,5 +1,6 @@
 import Matcher from './core/matcher';
 import Inteceptor from './core';
+export * from './types';
 
 const inteceptor = new Inteceptor();
 

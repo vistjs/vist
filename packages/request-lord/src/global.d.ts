@@ -25,10 +25,13 @@ declare type RequestPayload = {
 };
 
 declare type ResponsePayload = {
+  url: string;
+  method: Method;
   status: number;
   statusText: string;
   headers: Record<string, string>;
   body: string;
+  delay?: number;
 };
 
 declare type FetchRequest = {

@@ -12,10 +12,9 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
-    "useDefineForClassFields": true
+    "useDefineForClassFields": true,
+    "typeRoots": ["node_modules/request-lord"]
   },
   "exclude": ["test"],
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

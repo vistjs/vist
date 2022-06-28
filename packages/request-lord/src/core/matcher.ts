@@ -1,3 +1,4 @@
+import { HTTPStatusCodes } from '../constants';
 import { Interceptor } from '../types';
 
 const HOOKS = [
@@ -49,6 +50,7 @@ class Matcher extends Interceptor {
     if (!this.hooks[name]) {
       this.hooks[name] = cb;
     }
+    return this;
   }
 
   callHook(name: string, args: any[]) {
@@ -77,11 +79,14 @@ class Matcher extends Interceptor {
   requestHanler(params: RequestPayload): ResponsePayload {
     let { url, method, headers, body } = params;
     const status = this.callHook('replaceStatus', [params]) || 200;
+    headers = this.callHook('resHeaders', [params]) || headers;
     const resBody = this.callHook('resBody', [params]) || '';
     console.log('requestHanler', resBody);
     return {
+      url,
+      method,
       status,
-      statusText: '', // TODO
+      statusText: HTTPStatusCodes[status] || '',
       headers: {},
       body: resBody,
     };
@@ -89,11 +94,13 @@ class Matcher extends Interceptor {
 
   // replaceStatus,resCookie,resCors,resHeaders, response
   responseCatcher(params: ResponsePayload): ResponsePayload {
-    let { status, statusText, headers, body } = params;
+    let { url, method, status, statusText, headers, body } = params;
     status = this.callHook('replaceStatus', [params]) || status || 200;
     headers = this.callHook('resHeaders', [params]) || headers;
     this.callHook('response', [params]);
     return {
+      url,
+      method,
       status,
       statusText,
       headers,

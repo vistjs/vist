@@ -6,7 +6,7 @@ export type Config = {
   pattern: string;
   method?: Method;
   requestCatcher?: (params: RequestPayload) => RequestPayload;
-  requestHanler?: (params: RequestPayload) => ResponsePayload;
+  requestHanler?: (params: RequestPayload) => Promise<ResponsePayload>;
   responseCatcher?: (params: ResponsePayload) => ResponsePayload;
 };
 

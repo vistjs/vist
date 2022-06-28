@@ -48,6 +48,8 @@ export default class FetchInterceptor {
         const resResolver = (resp: Response, body: string) => {
           if (responseCatcher) {
             const transformedBody = responseCatcher({
+              url: requestUrl,
+              method,
               status: resp.status,
               statusText: resp.statusText,
               headers: convertHeadersToObject(resp.headers),
@@ -70,13 +72,14 @@ export default class FetchInterceptor {
           ...requestParams,
         };
         if (requestHanler) {
-          const mockResp = requestHanler(requestParams);
-          const { status, statusText } = mockResp;
-          const headers = new Headers({ ...mockResp.headers });
+          requestHanler(requestParams).then((mockResp) => {
+            const { status, statusText } = mockResp;
+            const headers = new Headers({ ...mockResp.headers });
 
-          const response = new Response(mockResp.body as BodyInit, { status, statusText, headers });
-          Object.defineProperty(response, 'url', { value: requestUrl });
-          resolve(response);
+            const response = new Response(mockResp.body as BodyInit, { status, statusText, headers });
+            Object.defineProperty(response, 'url', { value: requestUrl });
+            resolve(response);
+          });
         } else {
           this.fetch(reqPayload.url, reqPayload)
             .then((response: Response) => {
