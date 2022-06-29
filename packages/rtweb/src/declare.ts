@@ -1,3 +1,4 @@
+import EventBus from 'js-event-bus';
 import { RecordDbData, ReplayData } from './types';
 declare global {
   interface Window {

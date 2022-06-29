@@ -3,6 +3,7 @@ import { logError, getTime, tempEmptyFn, tempEmptyPromise, delay } from '../util
 import { Pluginable } from './pluginable';
 import { Watcher } from './watcher';
 import { RecordData, RecorderMiddleware, RecorderStatus, RecordInternalOptions, RecordOptions } from '../types';
+import { EVENTS } from '../constant';
 
 export class Recorder {
   public startTime: number;

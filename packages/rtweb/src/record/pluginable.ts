@@ -4,6 +4,7 @@ import { RecordOptions } from '../types';
 import { logError } from '../utils';
 import { Watcher } from './watcher';
 import { CtrlPlugin } from './ctrlPlugin';
+import { MockPlugin } from './mockPlugin';
 
 export interface RecorderPlugin {
   apply(recorder: Pluginable): void;
@@ -24,7 +25,8 @@ export class Pluginable {
       new CtrlPlugin({
         stopKey: options?.hotkeys?.stop,
         captureKey: options?.hotkeys?.capture,
-      })
+      }),
+      new MockPlugin()
     );
 
     this.initPlugin(options);

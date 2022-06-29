@@ -3,6 +3,7 @@ import { ReplayOptions } from '../types';
 import { logError } from '../utils';
 import { Store } from './stores';
 import { ReplayPlugin } from './replayPlugin';
+import { MockPlugin } from './mockPlugin';
 export interface ReplayerPlugin {
   apply(recorder: Pluginable): void;
 }
@@ -17,7 +18,7 @@ export class Pluginable {
   private defaultPlugins: ReplayerPlugin[] = [];
 
   constructor(options?: ReplayOptions) {
-    this.defaultPlugins.push(new ReplayPlugin());
+    this.defaultPlugins.push(new ReplayPlugin(), new MockPlugin());
 
     this.initPlugin(options);
 

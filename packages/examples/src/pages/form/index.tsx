@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './styles.css';
 
 function Page() {
@@ -29,6 +29,22 @@ function Page() {
   function onChangeSelect(ev: any) {
     console.log(`onChangeSelect, ${ev.target.value}`);
   }
+
+  useEffect(() => {
+    // fetch('https://paul.ren/api/say', {})
+    //   .then((response) => {
+    //     return response.text();
+    //   })
+    //   .then((text) => {
+    //     console.log('fetch response', text);
+    //   });
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://paul.ren/api/say');
+    xhr.send();
+    xhr.onload = function () {
+      console.log(`Loaded: ${xhr.status} ${xhr.response}`);
+    };
+  }, []);
 
   return (
     <div className="form-page">

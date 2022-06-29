@@ -3,6 +3,7 @@ import { Player } from './replay';
 import { SavePlugin } from './record/savePlugin';
 import { getUrlParam, getRecordsFromDB } from './utils';
 import { LOCAL_DB_NAME, PLAY_PARAM } from './constant';
+import lord from 'request-lord';
 
 export { Recorder, Player, getUrlParam };
 
@@ -50,8 +51,15 @@ export default class Rtweb {
               });
         },
       });
+      // lord('https://paul.ren/api/say').resBody((params: any) => {
+      //   console.log('resBody hook', params);
+      //   return 'mock res';
+      // });
     } else {
       this.recorder = new Recorder({ plugins: [new SavePlugin({ dbName, remoteUrl: options?.remoteUrl })] });
+      // lord('https://paul.ren/api/say').response((params: any) => {
+      //   console.log('response hook', params);
+      // });
     }
   }
 }

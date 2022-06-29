@@ -25,9 +25,12 @@
     "url": "git+https://github.com/letshare/rtweb.git"
   },
   "devDependencies": {
+    "@types/node": "^18.0.0",
     "typescript": "^3.9.5"
   },
-  "dependencies": {},
+  "dependencies": {
+    "minimatch": "^5.1.0"
+  },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
