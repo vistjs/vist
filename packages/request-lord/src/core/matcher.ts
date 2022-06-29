@@ -77,16 +77,16 @@ class Matcher extends Interceptor {
 
   // statusCode, resBody
   requestHanler(params: RequestPayload): ResponsePayload {
-    let { url, method, headers, body } = params;
+    let { url, method, body } = params;
     const status = this.callHook('replaceStatus', [params]) || 200;
-    headers = this.callHook('resHeaders', [params]) || headers;
+    const headers = this.callHook('resHeaders', [params]) || {};
     const resBody = this.callHook('resBody', [params]) || '';
     return {
       url,
       method,
       status,
       statusText: HTTPStatusCodes[status] || '',
-      headers: {},
+      headers,
       body: resBody,
     };
   }

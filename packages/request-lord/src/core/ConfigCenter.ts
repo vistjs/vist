@@ -2,8 +2,10 @@
  * 配置存储中心
  */
 
+import minimatch from 'minimatch';
+
 export type Config = {
-  pattern: string;
+  pattern: string | RegExp;
   method?: Method;
   requestCatcher?: (params: RequestPayload) => RequestPayload;
   requestHanler?: (params: RequestPayload) => Promise<ResponsePayload>;
@@ -19,9 +21,25 @@ export default class ConfigCenter {
     this.commonConfig = { pattern: '*' };
   }
 
-  findRequestConfig(url?: string, method?: Method) {
+  findRequestConfig(url?: string, m?: Method) {
     // url 作为标识符
-    const index = this.requestConfigs.findIndex((c) => c.pattern === url);
+    const index = this.requestConfigs.findIndex(({ pattern, method }) => {
+      let urlMatched;
+      if (pattern instanceof RegExp) {
+        urlMatched = pattern.test(url || '');
+      } else {
+        urlMatched = minimatch(url || '', pattern);
+      }
+      if (urlMatched) {
+        if (!!m && !!method) {
+          return urlMatched && m === method;
+        } else {
+          return urlMatched;
+        }
+      } else {
+        return false;
+      }
+    });
     if (index >= 0) {
       return {
         index,
@@ -33,10 +51,12 @@ export default class ConfigCenter {
   }
 
   saveRequestConfig(config: Config) {
-    const conf = this.findRequestConfig(config.pattern, config.method);
-    if (conf) {
-      this.requestConfigs[conf.index] = {
-        ...conf.config,
+    const confIndex = this.requestConfigs.findIndex(({ pattern, method }) => {
+      return pattern.toString() === config.pattern.toString() && method === config.method;
+    });
+    if (confIndex > 0) {
+      this.requestConfigs[confIndex] = {
+        ...this.requestConfigs[confIndex],
         ...config,
       };
     } else {
