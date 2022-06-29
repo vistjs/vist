@@ -10,7 +10,7 @@ export class MockPlugin {
     const { plugin } = recorder;
     const store = new Store(id);
 
-    lord('**/api/**').tapHook('response', (data: ResponsePayload) => {
+    lord('**/api/**').response((data: ResponsePayload) => {
       console.log(data);
       this.responseData.push(data);
     });

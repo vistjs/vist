@@ -28,6 +28,7 @@ class Matcher extends Interceptor {
       //@ts-ignore setting hook props
       this[name] = (cb) => {
         this.tapHook(name, cb);
+        return this;
       };
     });
     this.requestCatcher = this.requestCatcher.bind(this);

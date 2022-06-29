@@ -11,15 +11,15 @@ export class MockPlugin {
     this.responseData = store.getResponses();
 
     lord('**/api/**')
-      .tapHook('replaceStatus', ({ url, method }: RequestPayload) => {
+      .replaceStatus(({ url, method }: RequestPayload) => {
         const res = this.getResData(url, method);
         return res ? res.status : null;
       })
-      .tapHook('resHeaders', ({ url, method }: RequestPayload) => {
+      .resHeaders(({ url, method }: RequestPayload) => {
         const res = this.getResData(url, method);
         return res ? res.headers : null;
       })
-      .tapHook('resBody', ({ url, method }: RequestPayload) => {
+      .resBody(({ url, method }: RequestPayload) => {
         const res = this.getResData(url, method);
         return res ? res.body : null;
       });
