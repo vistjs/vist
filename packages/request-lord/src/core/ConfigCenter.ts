@@ -21,24 +21,16 @@ export default class ConfigCenter {
     this.commonConfig = { pattern: '*' };
   }
 
-  findRequestConfig(url?: string, m?: Method) {
+  findRequestConfig(url?: string) {
     // url 作为标识符
-    const index = this.requestConfigs.findIndex(({ pattern, method }) => {
+    const index = this.requestConfigs.findIndex(({ pattern }) => {
       let urlMatched;
       if (pattern instanceof RegExp) {
         urlMatched = pattern.test(url || '');
       } else {
-        urlMatched = minimatch(url || '', pattern);
+        urlMatched = minimatch(url || '', pattern, { partial: true });
       }
-      if (urlMatched) {
-        if (!!m && !!method) {
-          return urlMatched && m === method;
-        } else {
-          return urlMatched;
-        }
-      } else {
-        return false;
-      }
+      return urlMatched;
     });
     if (index >= 0) {
       return {
@@ -64,8 +56,8 @@ export default class ConfigCenter {
     }
   }
 
-  getRequestConfig(url: string, method: Method) {
-    const conf = this.findRequestConfig(url, method);
+  getRequestConfig(url: string) {
+    const conf = this.findRequestConfig(url);
     return conf ? conf.config : null;
   }
 

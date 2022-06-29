@@ -56,9 +56,9 @@ export default class Interceptor {
     this.configCenter.saveCommonConfig(config);
   }
 
-  getHandlers(url: string, method: Method) {
+  getHandlers(url: string) {
     const commonConfig = this.configCenter.getCommonConfig();
-    const requestConfig = this.configCenter.getRequestConfig(url, method);
+    const requestConfig = this.configCenter.getRequestConfig(url);
 
     // 指定 url 和 method 的配置比公共配置优先
     const requestCatcher = requestConfig?.requestCatcher || commonConfig.requestCatcher;

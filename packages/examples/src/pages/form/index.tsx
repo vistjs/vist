@@ -31,15 +31,19 @@ function Page() {
   }
 
   useEffect(() => {
-    fetch('https://es6.ruanyifeng.com/', {
-      mode: 'no-cors',
-    })
-      .then((response) => {
-        return response.text();
-      })
-      .then((text) => {
-        console.log('fetch response', text);
-      });
+    // fetch('https://paul.ren/api/say', {})
+    //   .then((response) => {
+    //     return response.text();
+    //   })
+    //   .then((text) => {
+    //     console.log('fetch response', text);
+    //   });
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://paul.ren/api/say');
+    xhr.send();
+    xhr.onload = function () {
+      console.log(`Loaded: ${xhr.status} ${xhr.response}`);
+    };
   }, []);
 
   return (

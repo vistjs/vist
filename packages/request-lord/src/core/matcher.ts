@@ -25,7 +25,7 @@ class Matcher extends Interceptor {
     super(pattern);
     this.hooks = {};
     HOOKS.forEach((name: string) => {
-      //@ts-ignore
+      //@ts-ignore setting hook props
       this[name] = (cb) => {
         this.tapHook(name, cb);
       };
@@ -33,7 +33,6 @@ class Matcher extends Interceptor {
     this.requestCatcher = this.requestCatcher.bind(this);
     this.requestHanler = this.requestHanler.bind(this);
     this.responseCatcher = this.responseCatcher.bind(this);
-    const that = this;
     return new Proxy(this, {
       get(target, name, receiver) {
         if (name === 'requestHanler') {
@@ -76,33 +75,35 @@ class Matcher extends Interceptor {
   }
 
   // statusCode, resBody
-  requestHanler(params: RequestPayload): ResponsePayload {
-    let { url, method, body } = params;
-    const status = this.callHook('replaceStatus', [params]) || 200;
-    const headers = this.callHook('resHeaders', [params]) || {};
-    const resBody = this.callHook('resBody', [params]) || '';
-    return {
-      url,
-      method,
-      status,
-      statusText: HTTPStatusCodes[status] || '',
-      headers,
-      body: resBody,
-    };
+  requestHanler(params: RequestPayload): Promise<ResponsePayload> {
+    return new Promise((resolve) => {
+      const { url, method } = params;
+      const status = this.callHook('replaceStatus', [params]) || 200;
+      const headers = this.callHook('resHeaders', [params]) || {};
+      const resBody = this.callHook('resBody', [params]) || '';
+      resolve({
+        url,
+        method,
+        status,
+        statusText: HTTPStatusCodes[status] || '',
+        headers,
+        body: resBody,
+      });
+    });
   }
 
   // replaceStatus,resCookie,resCors,resHeaders, response
   responseCatcher(params: ResponsePayload): ResponsePayload {
-    let { url, method, status, statusText, headers, body } = params;
-    status = this.callHook('replaceStatus', [params]) || status || 200;
-    headers = this.callHook('resHeaders', [params]) || headers;
+    const { url, method, status, statusText, headers, body } = params;
+    const newStatus = this.callHook('replaceStatus', [params]) || status || 200;
+    const newHeaders = this.callHook('resHeaders', [params]) || headers;
     this.callHook('response', [params]);
     return {
       url,
       method,
-      status,
+      status: newStatus,
       statusText,
-      headers,
+      headers: newHeaders,
       body,
     };
   }

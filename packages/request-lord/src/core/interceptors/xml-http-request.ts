@@ -5,6 +5,8 @@ import { getFullRequestUrl } from '../utils';
 class NotResolved {}
 
 export default class XMLHttpRequestInterceptor {
+  static intercepted = false;
+
   private host: Interceptor;
   private xhr: XMLHttpRequest;
 
@@ -12,23 +14,26 @@ export default class XMLHttpRequestInterceptor {
     this.host = host;
     this.xhr = (this.host.global as any).XMLHttpRequest.prototype;
     this.intercept();
+    XMLHttpRequestInterceptor.intercepted = true;
   }
 
   intercept() {
-    this.interceptOpen();
-    this.interceptSend();
-    this.interceptSetRequestHeader();
-    this.interceptGetAllResponseHeaders();
-    this.interceptGetResponseHeader();
+    if (!XMLHttpRequestInterceptor.intercepted) {
+      this.interceptOpen();
+      this.interceptSend();
+      this.interceptSetRequestHeader();
+      this.interceptGetAllResponseHeaders();
+      this.interceptGetResponseHeader();
 
-    // intercept getters
-    this.interceptReadyState();
-    this.interceptStatus();
-    this.interceptStatusText();
-    this.interceptResponseText();
-    this.interceptResponse();
-    this.interceptResponseURL();
-    this.interceptResponseXML();
+      // intercept getters
+      this.interceptReadyState();
+      this.interceptStatus();
+      this.interceptStatusText();
+      this.interceptResponseText();
+      this.interceptResponse();
+      this.interceptResponseURL();
+      this.interceptResponseXML();
+    }
   }
 
   private getGetter(key: string) {
@@ -36,7 +41,7 @@ export default class XMLHttpRequestInterceptor {
     if (descriptor) {
       return descriptor.get;
     }
-    // @ts-ignore
+    // @ts-ignore getting xhr props
     return this.xhr[key];
   }
 
@@ -54,16 +59,18 @@ export default class XMLHttpRequestInterceptor {
           password: string | null = null
         ) => {
           const requestUrl = getFullRequestUrl(url);
-          const { requestCatcher, requestHanler, responseCatcher } = me.host.getHandlers(requestUrl, method);
+          if (!this.bypassMock) {
+            const { requestCatcher, requestHanler, responseCatcher } = me.host.getHandlers(requestUrl);
 
-          if (!this.bypassMock && (requestCatcher || requestHanler || responseCatcher)) {
-            this.isMockRequest = true;
-            this.requestInfo = {
-              url: requestUrl,
-              method,
-            };
-            this.requestArgs = [method, requestUrl, async, user, password];
-            this.mockResponse = new NotResolved();
+            if (requestCatcher || requestHanler || responseCatcher) {
+              this.isMockRequest = true;
+              this.requestInfo = {
+                url: requestUrl,
+                method,
+              };
+              this.requestArgs = [method, requestUrl, async, user, password];
+              this.mockResponse = new NotResolved();
+            }
             return;
           }
           return original.call(this, method, requestUrl, async, user, password);
@@ -81,10 +88,7 @@ export default class XMLHttpRequestInterceptor {
       get: function () {
         return (body: unknown) => {
           if (this.isMockRequest) {
-            const { requestCatcher, requestHanler, responseCatcher } = me.host.getHandlers(
-              this.requestInfo.url,
-              this.requestInfo.method
-            );
+            const { requestCatcher, requestHanler, responseCatcher } = me.host.getHandlers(this.requestInfo.url);
 
             if (requestCatcher) {
               this.requestInfo = requestCatcher({
@@ -102,6 +106,8 @@ export default class XMLHttpRequestInterceptor {
             } else {
               me.sendRemoteRequest(this);
             }
+
+            return;
           }
           return original.call(this, body as Document);
         };
@@ -116,10 +122,10 @@ export default class XMLHttpRequestInterceptor {
     const { requestInfo } = xhr;
 
     const newXhr = new XMLHttpRequest();
-    Object.assign(newXhr, { isMockRequest: false, bypassMock: true });
+    Object.assign(newXhr, { isMockRequest: false, bypassMock: true, type: 'mock' });
     newXhr.onreadystatechange = () => {
       if (newXhr.readyState === 4) {
-        const { responseCatcher } = this.host.getHandlers(requestInfo.url, requestInfo.method);
+        const { responseCatcher } = this.host.getHandlers(requestInfo.url);
         const remoteResponse: ResponsePayload = {
           url: requestInfo.url,
           method: requestInfo.method,

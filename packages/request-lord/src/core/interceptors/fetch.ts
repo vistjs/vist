@@ -30,7 +30,7 @@ export default class FetchInterceptor {
       const requestUrl = getFullRequestUrl(url);
 
       return new Promise((resolve, reject) => {
-        const { requestCatcher, requestHanler, responseCatcher } = this.host.getHandlers(requestUrl, method);
+        const { requestCatcher, requestHanler, responseCatcher } = this.host.getHandlers(requestUrl);
 
         // 转换请求入参
         let requestParams: RequestPayload = {

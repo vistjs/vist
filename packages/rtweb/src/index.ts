@@ -51,15 +51,15 @@ export default class Rtweb {
               });
         },
       });
-      lord('https://es6.ruanyifeng.com/').resBody((params: any) => {
-        console.log('resBody hook', params);
-        return 'mock res';
-      });
+      // lord('https://paul.ren/api/say').resBody((params: any) => {
+      //   console.log('resBody hook', params);
+      //   return 'mock res';
+      // });
     } else {
       this.recorder = new Recorder({ plugins: [new SavePlugin({ dbName, remoteUrl: options?.remoteUrl })] });
-      lord('https://es6.ruanyifeng.com/').response((params: any) => {
-        console.log('response hook', params);
-      });
+      // lord('https://paul.ren/api/say').response((params: any) => {
+      //   console.log('response hook', params);
+      // });
     }
   }
 }

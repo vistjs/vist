@@ -10,7 +10,7 @@ export class MockPlugin {
     const store = new Store(id);
     this.responseData = store.getResponses();
 
-    lord('/api/**')
+    lord('**/api/**')
       .tapHook('replaceStatus', ({ url, method }: RequestPayload) => {
         const res = this.getResData(url, method);
         return res ? res.status : null;
