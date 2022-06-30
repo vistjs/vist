@@ -17,7 +17,7 @@ const HOOKS = [
   'response',
 ];
 class Matcher extends Interceptor {
-  hooks: {
+  private hooks: {
     [key: string]: Function;
   };
 
@@ -46,14 +46,14 @@ class Matcher extends Interceptor {
     });
   }
 
-  tapHook(name: string, cb: Function) {
+  private tapHook(name: string, cb: Function) {
     if (!this.hooks[name]) {
       this.hooks[name] = cb;
     }
     return this;
   }
 
-  callHook(name: string, args: any[]) {
+  private callHook(name: string, args: any[]) {
     if (this.hooks[name]) {
       return this.hooks[name].apply(this, args);
     }
