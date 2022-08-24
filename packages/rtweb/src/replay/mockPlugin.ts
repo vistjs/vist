@@ -1,4 +1,4 @@
-import lord, { RequestPayload, ResponsePayload, Method } from 'request-lord';
+// import lord, { RequestPayload, ResponsePayload, Method } from 'request-lord';
 import Store from 'request-lord/src/store';
 import { PlayerModule } from '.';
 
@@ -10,19 +10,19 @@ export class MockPlugin {
     const store = new Store(id);
     this.responseData = store.getResponses();
 
-    lord('**/api/**')
-      .replaceStatus(({ url, method }: RequestPayload) => {
-        const res = this.getResData(url, method);
-        return res ? res.status : null;
-      })
-      .resHeaders(({ url, method }: RequestPayload) => {
-        const res = this.getResData(url, method);
-        return res ? res.headers : null;
-      })
-      .resBody(({ url, method }: RequestPayload) => {
-        const res = this.getResData(url, method);
-        return res ? res.body : null;
-      });
+    // lord('**/api/**')
+    //   .replaceStatus(({ url, method }: RequestPayload) => {
+    //     const res = this.getResData(url, method);
+    //     return res ? res.status : null;
+    //   })
+    //   .resHeaders(({ url, method }: RequestPayload) => {
+    //     const res = this.getResData(url, method);
+    //     return res ? res.headers : null;
+    //   })
+    //   .resBody(({ url, method }: RequestPayload) => {
+    //     const res = this.getResData(url, method);
+    //     return res ? res.body : null;
+    //   });
   }
 
   private getResData(url: string, method: Method) {

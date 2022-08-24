@@ -1,4 +1,4 @@
-import lord, { ResponsePayload } from 'request-lord';
+// import lord, { ResponsePayload } from 'request-lord';
 import Store from 'request-lord/src/store';
 import { RecorderModule } from '.';
 
@@ -10,10 +10,10 @@ export class MockPlugin {
     const { plugin } = recorder;
     const store = new Store(id);
 
-    lord('**/api/**').response((data: ResponsePayload) => {
-      console.log(data);
-      this.responseData.push(data);
-    });
+    // lord('**/api/**').response((data: ResponsePayload) => {
+    //   console.log(data);
+    //   this.responseData.push(data);
+    // });
 
     plugin('end', () => {
       store.saveResponses(this.responseData);

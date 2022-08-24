@@ -5,12 +5,14 @@ import { RecordDbData, RecordData } from '../types';
 type OPTIONS = {
   dbName: string;
   remoteUrl?: string;
+  pid?: number; // project id
 };
 
 export class SavePlugin {
   private records: RecordDbData[] = [];
   private store;
-  private remoteUrl: string;
+  private remoteUrl: string | undefined;
+  private pid: number | undefined;
 
   constructor(options: OPTIONS) {
     /** init plugin options */
@@ -18,12 +20,14 @@ export class SavePlugin {
       this.store = localforage.createInstance({
         name: options.dbName,
       });
+    } else {
+      this.remoteUrl = options.remoteUrl;
+      this.pid = options.pid;
     }
   }
 
   apply(recorder: RecorderModule) {
     const { plugin } = recorder;
-    const id = 1;
     plugin('emit', (record: RecordData) => {
       //console.log(`received record:`, record);
       this.records.push({ type: record.type, time: record.time, ...record.extras });
@@ -32,25 +36,25 @@ export class SavePlugin {
     plugin('end', () => {
       console.log('recording finish');
       const info = {
-        id,
         url: window.location.href,
         w: window.innerWidth,
         h: window.innerHeight,
       };
       if (!this.remoteUrl) {
-        this.store?.setItem(`id_${id}`, info).then(() => {
+        this.store?.setItem(`id_1`, info).then(() => {
           this.records = [];
         });
-        this.store?.setItem(`${RECORD_TABLE}_${id}`, this.records).then(() => {
+        this.store?.setItem(`${RECORD_TABLE}_1`, this.records).then(() => {
           this.records = [];
         });
       } else {
-        fetch(`${this.remoteUrl}/save_record`, {
+        fetch(`${this.remoteUrl}/api/open/case`, {
           method: 'POST', // or 'PUT'
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ frames: this.records, ...info }),
+          mode: 'cors',
+          body: JSON.stringify({ frames: this.records, apis: [], ...info, pid: this.pid }),
         })
           .then((response) => response.json())
           .then((data) => {
