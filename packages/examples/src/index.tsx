@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import Rtweb from 'rtweb';
 
-new Rtweb({ remoteUrl: 'http://127.0.0.1:3000', pid: 36 });
+new Rtweb({ remoteUrl: 'http://127.0.0.1:3000', pid: 1 });
 
 ReactDOM.render(
   <React.StrictMode>

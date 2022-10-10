@@ -26,9 +26,13 @@ export default class Rtweb {
     const playParam = options?.playParam || PLAY_PARAM;
     const recordId = getUrlParam(playParam);
     const recordInfo = getUrlParam('recordInfo');
-    if (recordId) {
+    if (recordId || window.rtFetchRecords) {
       this.player = new Player({
         receiver: (cb) => {
+          if (window.rtFetchRecords) {
+            return cb(window.rtFetchRecords());
+          }
+
           options?.remoteUrl
             ? fetch(`${options.remoteUrl}/api/open/case?id=${recordId}`, {
                 method: 'GET',

@@ -1,9 +1,7 @@
-import EventBus from 'js-event-bus';
 import { RecordDbData, ReplayData } from './types';
 declare global {
   interface Window {
     G_RECORD_OPTIONS: any;
-    G_RECORD_RELATED_ID: string;
     G_REPLAY_RECORDS: RecordDbData[];
     G_REPLAY_STR_RECORDS: string;
     G_REPLAY_DATA: ReplayData;
@@ -16,6 +14,12 @@ declare global {
     HTMLOptionElement: typeof HTMLOptionElement;
 
     webkitAudioContext?: typeof AudioContext;
+
+    rtScreenshot: (info: any) => Promise<any>;
+
+    rtFinishReplay: Function;
+
+    rtFetchRecords: Function;
   }
 
   interface Document {

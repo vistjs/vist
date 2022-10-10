@@ -8,7 +8,7 @@
     "web",
     "testing"
   ],
-  "author": "letshare <brucecai2012@gmail.com>",
+  "author": "letshare",
   "homepage": "https://github.com/letshare/rtweb#readme",
   "license": "MIT",
   "main": "src/index.ts",

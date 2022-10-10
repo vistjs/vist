@@ -1,7 +1,7 @@
 import { PlayerModule } from '.';
-import { RecordDbData, RecordType } from '../types';
+import { RecordDbData, RecordType, PlayerEventTypes } from '../types';
+import { observer } from '../utils';
 import domtoimage from 'dom-to-image';
-
 export class ReplayPlugin {
   constructor() {}
 
@@ -12,12 +12,22 @@ export class ReplayPlugin {
       console.log(`outer record:`, { ...record, type: record.type, time: record.time });
       // this.records.push({ type: record.type, time: record.time });
       if (record.type === RecordType.CAPTURE) {
-        domtoimage.toJpeg(document.body, { quality: 0.95 }).then(function (dataUrl: any) {
-          var link = document.createElement('a');
-          link.download = `capture_${record.data?.id || 1}.jpeg`;
-          link.href = dataUrl;
-          link.click();
-        });
+        if (window.rtScreenshot) {
+          window.rtScreenshot({ id: record.data?.id || 1 });
+        } else {
+          domtoimage.toJpeg(document.body, { quality: 0.95 }).then(function (dataUrl: any) {
+            const link = document.createElement('a');
+            link.download = `capture_${record.data?.id || 1}.jpeg`;
+            link.href = dataUrl;
+            link.click();
+          });
+        }
+      }
+    });
+
+    observer.on(PlayerEventTypes.STOP, () => {
+      if (window.rtFinishReplay) {
+        window.rtFinishReplay();
       }
     });
   }
