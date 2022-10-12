@@ -1,4 +1,4 @@
-'use strict';
+
 
 const path = require('path');
 const fs = require('fs');
@@ -69,7 +69,6 @@ module.exports = {
   swSrc: resolveModule(resolveApp, 'src/service-worker'),
   publicUrlOrPath,
   rtwebSrc: resolveApp('../rtweb/src'),
-  lordSrc: resolveApp('../request-lord/src'),
 };
 
 module.exports.moduleFileExtensions = moduleFileExtensions;

@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import Rtweb from 'rtweb';
 
-new Rtweb({ remoteUrl: 'http://127.0.0.1:3000', pid: 1 });
+new Rtweb({ remoteUrl: 'http://127.0.0.1:3000', pid: 1, requestMock: ['63459b8739ca915a6903c126.mockapi.io/**'] });
 
 ReactDOM.render(
   <React.StrictMode>

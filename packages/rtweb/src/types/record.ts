@@ -16,7 +16,7 @@ export interface RecordOptions {
   };
 }
 
-export interface RecordInternalOptions extends Required<RecordOptions> {}
+export type RecordInternalOptions = RecordOptions;
 
 export type WatcherArgs<T extends RecordData, WatchersInstance = any, Recorder = any> = {
   recorder: Recorder;
@@ -57,6 +57,12 @@ export enum RecorderStatus {
   RUNNING = 'running',
   PAUSE = 'pause',
   HALT = 'halt',
+}
+
+export enum RecorderEventTypes {
+  RECORD = 'record',
+  PAUSE = 'pause',
+  STOP = 'stop',
 }
 
 export type RecorderMiddleware = (data: RecordData, n: () => Promise<void>) => Promise<void>;

@@ -1,6 +1,6 @@
 import { RecorderModule } from '.';
 import localforage from 'localforage';
-import { RECORD_TABLE } from '../constant';
+import { RECORD_TABLE, POLLY_DB_NAME } from '../constant';
 import { RecordDbData, RecordData } from '../types';
 type OPTIONS = {
   dbName: string;
@@ -48,22 +48,25 @@ export class SavePlugin {
           this.records = [];
         });
       } else {
-        fetch(`${this.remoteUrl}/api/open/case`, {
-          method: 'POST', // or 'PUT'
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          mode: 'cors',
-          body: JSON.stringify({ frames: this.records, apis: [], ...info, pid: this.pid }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log('Success:', data);
-            this.records = [];
+        setTimeout(() => {
+          const apis = localStorage.getItem(POLLY_DB_NAME);
+          fetch(`${this.remoteUrl}/api/open/case`, {
+            method: 'POST', // or 'PUT'
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            mode: 'cors',
+            body: JSON.stringify({ frames: this.records, apis, ...info, pid: this.pid }),
           })
-          .catch((error) => {
-            console.error('Error:', error);
-          });
+            .then((response) => response.json())
+            .then((data) => {
+              console.log('Success:', data);
+              this.records = [];
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+        }, 200);
       }
     });
   }

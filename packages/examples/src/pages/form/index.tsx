@@ -31,19 +31,9 @@ function Page() {
   }
 
   useEffect(() => {
-    // fetch('https://paul.ren/api/say', {})
-    //   .then((response) => {
-    //     return response.text();
-    //   })
-    //   .then((text) => {
-    //     console.log('fetch response', text);
-    //   });
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://paul.ren/api/say');
-    xhr.send();
-    xhr.onload = function () {
-      console.log(`Loaded: ${xhr.status} ${xhr.response}`);
-    };
+    fetch('https://63459b8739ca915a6903c126.mockapi.io/api/users')
+      .then((response) => response.json())
+      .then((json) => console.log(json));
   }, []);
 
   return (

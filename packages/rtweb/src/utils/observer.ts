@@ -1,4 +1,4 @@
-import { PlayerEventTypes } from '../types';
+import { PlayerEventTypes, RecorderEventTypes } from '../types';
 
 class Observer<T extends string> {
   id = 1;
@@ -45,4 +45,4 @@ class Observer<T extends string> {
   }
 }
 
-export const observer = new Observer<PlayerEventTypes>();
+export const observer = new Observer<RecorderEventTypes | PlayerEventTypes>();

@@ -1,11 +1,18 @@
 import { watchers } from './watchers';
-import { logError, getTime, tempEmptyFn, tempEmptyPromise, delay } from '../utils';
+import { logError, getTime, tempEmptyFn, tempEmptyPromise, delay, observer } from '../utils';
 import { Pluginable } from './pluginable';
 import { Watcher } from './watcher';
-import { RecordData, RecorderMiddleware, RecorderStatus, RecordInternalOptions, RecordOptions } from '../types';
-import { EVENTS } from '../constant';
+import {
+  RecordData,
+  RecorderMiddleware,
+  RecorderStatus,
+  RecordInternalOptions,
+  RecordOptions,
+  RecorderEventTypes,
+} from '../types';
 
 export class Recorder {
+  on: (key: RecorderEventTypes, fn: Function) => void = tempEmptyFn;
   public startTime: number;
   public destroyTime: number;
   public status: RecorderStatus = RecorderStatus.PAUSE;
@@ -62,6 +69,7 @@ export class RecorderModule extends Pluginable {
     this.loadPlugins();
     this.hooks.beforeRun.call(this);
     this.record(this.options);
+    observer.emit(RecorderEventTypes.RECORD);
     this.hooks.run.call(this);
   }
 
@@ -78,6 +86,7 @@ export class RecorderModule extends Pluginable {
       this.status = RecorderStatus.HALT;
       this.destroyTime = ret.lastTime || getTime();
     }
+    observer.emit(RecorderEventTypes.STOP);
     this.hooks.end.call(this);
   }
 
@@ -118,7 +127,7 @@ export class RecorderModule extends Pluginable {
 
   private async startRecord(options: RecordInternalOptions) {
     this.status = RecorderStatus.RUNNING;
-    let activeWatchers = [...this.watchers, ...this.pluginWatchers];
+    const activeWatchers = [...this.watchers, ...this.pluginWatchers];
 
     const onEmit = (options: RecordOptions) => {
       const emitTasks: Array<RecordData> = [];
@@ -187,5 +196,9 @@ export class RecorderModule extends Pluginable {
 
   private createNext(fn: RecorderMiddleware, data: RecordData, next: () => Promise<void>) {
     return async () => await fn(data, next);
+  }
+
+  public on(key: RecorderEventTypes, fn: Function) {
+    observer.on(key, fn);
   }
 }

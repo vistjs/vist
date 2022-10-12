@@ -1,4 +1,4 @@
-import { RecordDbData, ReplayData } from './types';
+import { RecordDbData, ReplayData } from '.';
 declare global {
   interface Window {
     G_RECORD_OPTIONS: any;

@@ -2,7 +2,8 @@ import { PlayerModule } from '.';
 import { RecordDbData, RecordType, PlayerEventTypes } from '../types';
 import { observer } from '../utils';
 import domtoimage from 'dom-to-image';
-export class ReplayPlugin {
+
+export class CtrlPlugin {
   constructor() {}
 
   apply(rePlayer: PlayerModule) {

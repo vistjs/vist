@@ -1,9 +1,8 @@
 import { Recorder } from './record';
 import { Player } from './replay';
 import { SavePlugin } from './record/savePlugin';
-import { getUrlParam, getRecordsFromDB } from './utils';
+import { getUrlParam, getRecordsFromDB, stubHttp } from './utils';
 import { LOCAL_DB_NAME, PLAY_PARAM } from './constant';
-// import lord from 'request-lord';
 
 export { Recorder, Player, getUrlParam };
 
@@ -16,21 +15,37 @@ type OPTIONS = {
     stop?: string;
     capture?: string;
   };
+  requestMock?: string[];
 };
 
 export default class Rtweb {
   recorder: Recorder;
   player: Player;
   constructor(options?: OPTIONS) {
+    this.init(options);
+  }
+
+  async init(options?: OPTIONS) {
     const dbName = options?.dbName || LOCAL_DB_NAME;
     const playParam = options?.playParam || PLAY_PARAM;
     const recordId = getUrlParam(playParam);
     const recordInfo = getUrlParam('recordInfo');
-    if (recordId || window.rtFetchRecords) {
+    let frames: any;
+    let apis: any;
+    if (window.rtFetchRecords) {
+      [frames, apis] = await window.rtFetchRecords();
+    }
+    const isReplay = recordId || frames;
+    const requestMock =
+      options?.requestMock && options.remoteUrl
+        ? [...options?.requestMock, `!${options.remoteUrl}/api/open/case`]
+        : options?.requestMock;
+    const polly = stubHttp(isReplay, requestMock, apis);
+    if (isReplay) {
       this.player = new Player({
-        receiver: (cb) => {
-          if (window.rtFetchRecords) {
-            return cb(window.rtFetchRecords());
+        receiver: async (cb) => {
+          if (frames) {
+            return cb(frames);
           }
 
           options?.remoteUrl
@@ -49,8 +64,7 @@ export default class Rtweb {
                   const frames = res?.data?.cases?.frames || [];
                   cb(frames);
                 })
-            : getRecordsFromDB(LOCAL_DB_NAME).then((res: any) => {
-                console.log(JSON.stringify(res));
+            : getRecordsFromDB(dbName).then((res: any) => {
                 const info = `w${res.w}h${res.h}`;
                 if (recordInfo !== info) {
                   window.open(
@@ -64,17 +78,16 @@ export default class Rtweb {
               });
         },
       });
-      // lord('https://paul.ren/api/say').resBody((params: any) => {
-      //   console.log('resBody hook', params);
-      //   return 'mock res';
-      // });
+      this.player.on('stop' as any, async () => {
+        await polly.stop();
+      });
     } else {
       this.recorder = new Recorder({
         plugins: [new SavePlugin({ dbName, remoteUrl: options?.remoteUrl, pid: options?.pid })],
       });
-      // lord('https://paul.ren/api/say').response((params: any) => {
-      //   console.log('response hook', params);
-      // });
+      this.recorder.on('stop' as any, async () => {
+        await polly.stop();
+      });
     }
   }
 }
