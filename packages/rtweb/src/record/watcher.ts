@@ -1,50 +1,51 @@
-import { WatcherArgs, RecordEvent, RecordData, RecordType, RecordInternalOptions } from '../types';
+import type { WatcherArgs, RecordData } from '../types';
+import { RecordType } from '../constants';
 import { debounce, throttle, getTime } from '../utils';
-
 import { RecorderModule } from '.';
 
-export type WatcherOptions<T extends RecordData> = WatcherArgs<T, Map<string, Watcher<RecordData>>, RecorderModule>;
-export class Watcher<T extends RecordData> {
-  recorder: RecorderModule;
-  context: Window;
-  private emit: RecordEvent<RecordData>;
-  watchOptions: any;
-  options: WatcherOptions<T>;
-  recordOptions: RecordInternalOptions;
+type WatcherInstallOptions = WatcherArgs<Map<string, Watcher>, RecorderModule>;
+
+export class Watcher {
+  recorder!: RecorderModule;
+  context!: Window;
+  private emit!: (e: RecordData) => void;
+  installOptions!: WatcherInstallOptions;
+  options: any;
 
   constructor(options?: any) {
-    this.watchOptions = options;
+    this.options = options;
   }
 
-  protected init(options: WatcherOptions<T>): void {}
+  protected init(): void {}
 
-  public install(options: WatcherOptions<T>) {
+  public install(options: WatcherInstallOptions) {
     const { emit, context, recorder } = options;
-    this.options = options;
+    this.installOptions = options;
     this.recorder = recorder;
     this.context = context;
-    this.recordOptions = context.G_RECORD_OPTIONS || window.G_RECORD_OPTIONS || {};
     this.emit = emit;
-    this.init(options);
+    this.init();
   }
 
   public uninstall(fn: Function) {
-    this.options.listenStore.add(fn);
+    this.installOptions.listenStore.add(fn);
   }
 
-  public emitData(
-    type: RecordType,
-    record: RecordData['data'] | null, // origin data from rrweb
-    extras: RecordData['extras'], // data to save in db
+  public emitData<T extends RecordType>(
+    type: T,
+    record?: RecordData<T>['data'], // data to save in db
+    dom?: RecordData['dom'],
+    eventWithTime?: RecordData['eventWithTime'], // origin data from rrweb
     time = getTime(),
-    callback?: (data: RecordData) => T
+    callback?: (data: RecordData) => RecordData
   ) {
-    const data = {
+    const data: RecordData<T> = {
       type,
       time,
       data: record,
-      extras,
-    } as RecordData;
+      dom,
+      eventWithTime,
+    };
 
     if (callback) {
       return this.emit(callback(data));

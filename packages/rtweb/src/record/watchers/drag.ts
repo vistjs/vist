@@ -1,8 +1,11 @@
 import { Watcher } from '../watcher';
-import { RecordType, RecordData } from '../../types';
+import { RecordType } from '../../constants/record';
+import type { RecordData } from '../../types';
 import { cloneKeys } from '../../utils';
 
-export class DragWatcher extends Watcher<any> {
+type DomData = Pick<RecordData<RecordType.DRAG>, 'data' | 'dom'>;
+
+export class DragWatcher extends Watcher {
   protected init() {
     const eventDataKeys = [
       'altKey',
@@ -48,9 +51,9 @@ export class DragWatcher extends Watcher<any> {
             dragOverWm.set(event.target, true);
           }
         }
-        const eventData = cloneKeys(event, eventDataKeys);
+        const eventData: DomData = { data: cloneKeys(event, eventDataKeys) };
         if (draggingNode) {
-          eventData.draggingInfo = draggingInfo;
+          eventData.data.draggingInfo = draggingInfo;
         }
         if (event.type === 'drop') {
           draggingNode && dragWm.delete(event.target);
@@ -67,19 +70,19 @@ export class DragWatcher extends Watcher<any> {
         // dragenter: clientX and target is entered node relatedTarget is dragging node
         // dragleave: clientX and relativeTarget is leaved node  target is dragging node
         if (event.type === 'dragenter') {
-          eventData.relatedTarget = {
+          eventData.data.relatedTarget = {
             x: draggingInfo.x,
             y: draggingInfo.y,
           };
         }
         eventData.dom = {
-          x: eventData.clientX,
-          y: eventData.clientY,
+          x: eventData.data.clientX,
+          y: eventData.data.clientY,
         };
         if (event.type === 'dragleave') {
-          eventData.relatedTarget = {
-            x: eventData.clientX,
-            y: eventData.clientY,
+          eventData.data.relatedTarget = {
+            x: eventData.data.clientX,
+            y: eventData.data.clientY,
           };
           eventData.dom = {
             x: draggingInfo.x,
@@ -88,12 +91,12 @@ export class DragWatcher extends Watcher<any> {
         }
 
         console.log(`${event.type}`, event);
-        this.push(RecordType.DRAG, eventData);
+        this.push(eventData);
       },
     });
   }
 
-  private push(type: RecordType, { dom, ...data }: RecordData['extras']) {
-    this.emitData(type, null, { dom, data });
+  private push({ dom, data }: DomData) {
+    this.emitData(RecordType.DRAG, data, dom);
   }
 }

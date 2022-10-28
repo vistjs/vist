@@ -1,4 +1,4 @@
-import { PlayerEventTypes, RecorderEventTypes } from '../types';
+import { PlayerEventTypes, RecorderEventTypes } from '../constants';
 
 class Observer<T extends string> {
   id = 1;

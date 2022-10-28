@@ -2,28 +2,22 @@ import { watchers } from './watchers';
 import { logError, getTime, tempEmptyFn, tempEmptyPromise, delay, observer } from '../utils';
 import { Pluginable } from './pluginable';
 import { Watcher } from './watcher';
-import {
-  RecordData,
-  RecorderMiddleware,
-  RecorderStatus,
-  RecordInternalOptions,
-  RecordOptions,
-  RecorderEventTypes,
-} from '../types';
-
+import type { RecordData, RecorderMiddleware, RecordInternalOptions, RecordOptions } from '../types';
+import { RecorderEventTypes } from '../constants';
 export class Recorder {
   on: (key: RecorderEventTypes, fn: Function) => void = tempEmptyFn;
-  public startTime: number;
-  public destroyTime: number;
-  public status: RecorderStatus = RecorderStatus.PAUSE;
-  public onData: RecorderModule['onData'] = tempEmptyFn;
-  public destroy: RecorderModule['destroy'] = tempEmptyPromise;
+  public startTime!: number;
+  public destroyTime!: number;
+  public status: RecorderEventTypes = RecorderEventTypes.INIT;
+  public onData: RecorderModule['onData'] = tempEmptyFn; // to transfer recordData in middleware
+  public stop: RecorderModule['stop'] = tempEmptyPromise;
   public pause: RecorderModule['pause'] = tempEmptyPromise as RecorderModule['pause'];
   public record: RecorderModule['record'] = tempEmptyPromise as RecorderModule['record'];
   public use: RecorderModule['use'] = tempEmptyFn;
-  constructor(options?: RecordOptions) {
+  [key: string]: any;
+  constructor(options: RecordOptions) {
     const recorder = new RecorderModule(options);
-    Object.keys(this).forEach((key: keyof Recorder) => {
+    Object.keys(this).forEach((key) => {
       Object.defineProperty(this, key, {
         get() {
           return typeof recorder[key] === 'function' ? (recorder[key] as Function).bind(recorder) : recorder[key];
@@ -37,31 +31,26 @@ export class RecorderModule extends Pluginable {
   private static defaultRecordOpts = {
     context: window,
     disableWatchers: [],
-  } as RecordOptions;
+  };
   private defaultMiddleware: RecorderMiddleware[] = [];
   private listenStore: Set<Function> = new Set();
   public middleware: RecorderMiddleware[] = [...this.defaultMiddleware];
-  private watchers: Array<Watcher<any>>;
-  private watchersInstance = new Map<string, Watcher<RecordData>>();
+  private watchers: Array<Watcher>;
+  private watchersInstance = new Map<string, Watcher>();
   private watchesReadyPromise;
-  private watcherResolve: Function;
-  private startTime: number;
-  private destroyTime: number;
+  private watcherResolve!: Function;
+  private startTime!: number;
+  private destroyTime!: number;
+  public status: RecorderEventTypes = RecorderEventTypes.INIT;
+  public options!: RecordInternalOptions;
 
-  public status: RecorderStatus = RecorderStatus.PAUSE;
-  public options: RecordInternalOptions;
-
-  constructor(options?: RecordOptions) {
+  [key: string]: any;
+  constructor(options: RecordOptions) {
     super(options);
-    this.initOptions(options);
+    this.options = { ...RecorderModule.defaultRecordOpts, ...options };
     this.watchers = this.getWatchers();
     this.watchesReadyPromise = new Promise((resolve) => (this.watcherResolve = resolve));
     this.init();
-  }
-
-  private initOptions(options?: RecordOptions) {
-    const opts = { ...RecorderModule.defaultRecordOpts, ...options } as RecordInternalOptions;
-    this.options = opts;
   }
 
   private init() {
@@ -77,13 +66,13 @@ export class RecorderModule extends Pluginable {
     this.middleware.unshift(fn);
   }
 
-  public async destroy() {
-    if (this.status === RecorderStatus.HALT) {
+  public async stop() {
+    if (this.status === RecorderEventTypes.STOP) {
       return;
     }
     const ret = await this.pause();
     if (ret) {
-      this.status = RecorderStatus.HALT;
+      this.status = RecorderEventTypes.STOP;
       this.destroyTime = ret.lastTime || getTime();
     }
     observer.emit(RecorderEventTypes.STOP);
@@ -91,8 +80,8 @@ export class RecorderModule extends Pluginable {
   }
 
   private async pause() {
-    if (this.status === RecorderStatus.RUNNING) {
-      this.status = RecorderStatus.PAUSE;
+    if (this.status === RecorderEventTypes.RECORD) {
+      this.status = RecorderEventTypes.PAUSE;
 
       await this.cancelListener();
 
@@ -117,19 +106,18 @@ export class RecorderModule extends Pluginable {
     });
   }
 
-  private record(options: RecordOptions | RecordInternalOptions): void {
-    if (this.status === RecorderStatus.PAUSE) {
-      const opts = { ...RecorderModule.defaultRecordOpts, ...options } as RecordInternalOptions;
-      this.startRecord((opts.context.G_RECORD_OPTIONS = opts));
+  private record(options: RecordInternalOptions): void {
+    if (this.status === RecorderEventTypes.INIT) {
+      this.startRecord((options.context.G_RECORD_OPTIONS = options));
       return;
     }
   }
 
   private async startRecord(options: RecordInternalOptions) {
-    this.status = RecorderStatus.RUNNING;
+    this.status = RecorderEventTypes.RECORD;
     const activeWatchers = [...this.watchers, ...this.pluginWatchers];
 
-    const onEmit = (options: RecordOptions) => {
+    const onEmit = (options: RecordInternalOptions) => {
       const emitTasks: Array<RecordData> = [];
       const { middleware: rootMiddleware } = options.rootRecorder || { middleware: [] };
       const execTasksChain = (() => {
@@ -143,7 +131,7 @@ export class RecorderModule extends Pluginable {
           while (emitTasks.length) {
             const record = emitTasks.shift()!;
             await delay(0);
-            if (this.status === RecorderStatus.RUNNING) {
+            if (this.status === RecorderEventTypes.RECORD) {
               const middleware = [...rootMiddleware, ...this.middleware];
               await this.connectCompose(middleware)(record);
               this.hooks.emit.call(record);
@@ -169,13 +157,13 @@ export class RecorderModule extends Pluginable {
       try {
         watcher.install({
           recorder: this,
-          context: options && options.context,
+          context: options.context,
           listenStore: this.listenStore,
           emit,
           watchers: this.watchersInstance,
         });
         this.watchersInstance.set(watcher.constructor.name, watcher);
-      } catch (e) {
+      } catch (e: any) {
         logError(e);
       }
     });

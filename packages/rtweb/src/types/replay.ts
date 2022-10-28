@@ -20,14 +20,3 @@ export interface ReplayInternalOptions extends Required<ReplayOptions> {
   autoplay: boolean;
   target: string | HTMLElement | Window;
 }
-
-export enum PlayerEventTypes {
-  INIT = 'init',
-  PLAY = 'play',
-  PAUSE = 'pause',
-  STOP = 'stop',
-  SPEED = 'speed',
-  RESIZE = 'resize',
-  PROGRESS = 'progress',
-  JUMP = 'jump',
-}

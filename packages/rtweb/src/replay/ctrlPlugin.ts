@@ -1,17 +1,15 @@
 import { PlayerModule } from '.';
-import { RecordDbData, RecordType, PlayerEventTypes } from '../types';
-import { observer } from '../utils';
+import { RecordType, PlayerEventTypes } from '../constants';
+import type { RecordData } from '../types';
 import domtoimage from 'dom-to-image';
 
 export class CtrlPlugin {
   constructor() {}
 
   apply(rePlayer: PlayerModule) {
-    const { plugin } = rePlayer;
+    const { on, plugin } = rePlayer;
 
-    plugin('render', (_, record: RecordDbData) => {
-      console.log(`outer record:`, { ...record, type: record.type, time: record.time });
-      // this.records.push({ type: record.type, time: record.time });
+    plugin('render', (_, record: RecordData<RecordType.CAPTURE>) => {
       if (record.type === RecordType.CAPTURE) {
         if (window.rtScreenshot) {
           window.rtScreenshot({ id: record.data?.id || 1 });
@@ -26,7 +24,7 @@ export class CtrlPlugin {
       }
     });
 
-    observer.on(PlayerEventTypes.STOP, () => {
+    on(PlayerEventTypes.STOP, () => {
       if (window.rtFinishReplay) {
         window.rtFinishReplay();
       }

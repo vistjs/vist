@@ -1,15 +1,21 @@
 {
   "name": "root",
   "private": true,
+  "description": "record and test the web",
+  "keywords": [
+    "rtweb",
+    "regression",
+    "web",
+    "testing"
+  ],
+  "author": "letshare <brucecai2012@gmail.com>",
+  "bugs": "https://github.com/letshare/rtweb/issues",
+  "homepage": "https://github.com/letshare/rtweb#readme",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/letshare/rtweb"
   },
-  "workspaces": [
-    "packages/*"
-  ],
-  "author": "letshare",
-  "license": "MIT",
   "scripts": {
     "postinstall": "husky install",
     "dev": "lerna run dev --parallel",
@@ -26,14 +32,15 @@
   "devDependencies": {
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
-    "@typescript-eslint/eslint-plugin": "^5.20.0",
-    "@typescript-eslint/parser": "^5.20.0",
-    "eslint": "^7.20.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "husky": "^7.0.2",
-    "lerna": "^4.0.0",
     "lint-staged": ">=10",
     "prettier": "^2.3.2"
+  },
+  "workspaces": [
+    "./packages/*"
+  ],
+  "engines": {
+    "node": "^14.18.0 || >=16.0.0",
+    "pnpm": ">=7"
   }
 }

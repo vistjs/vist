@@ -1,9 +1,9 @@
+import './utils/polyfills';
 import { Recorder } from './record';
 import { Player } from './replay';
 import { SavePlugin } from './record/savePlugin';
 import { getUrlParam, getRecordsFromDB, stubHttp } from './utils';
-import { LOCAL_DB_NAME, PLAY_PARAM } from './constant';
-
+import { LOCAL_DB_NAME, PLAY_PARAM } from './constants';
 export { Recorder, Player, getUrlParam };
 
 type OPTIONS = {
@@ -30,22 +30,22 @@ export default class Rtweb {
     const playParam = options?.playParam || PLAY_PARAM;
     const recordId = getUrlParam(playParam);
     const recordInfo = getUrlParam('recordInfo');
-    let frames: any;
-    let apis: any;
+    let steps: any;
+    let mocks: any;
     if (window.rtFetchRecords) {
-      [frames, apis] = await window.rtFetchRecords();
+      [steps, mocks] = await window.rtFetchRecords();
     }
-    const isReplay = recordId || frames;
+    const isReplay = recordId || steps;
     const requestMock =
       options?.requestMock && options.remoteUrl
         ? [...options?.requestMock, `!${options.remoteUrl}/api/open/case`]
         : options?.requestMock;
-    const polly = stubHttp(isReplay, requestMock, apis);
+    const polly = stubHttp(isReplay, requestMock, mocks);
     if (isReplay) {
       this.player = new Player({
         receiver: async (cb) => {
-          if (frames) {
-            return cb(frames);
+          if (steps) {
+            return cb(steps);
           }
 
           options?.remoteUrl
@@ -61,8 +61,8 @@ export default class Rtweb {
                   return response.json();
                 })
                 .then((res) => {
-                  const frames = res?.data?.cases?.frames || [];
-                  cb(frames);
+                  const steps = res?.data?.cases?.steps || [];
+                  cb(steps);
                 })
             : getRecordsFromDB(dbName).then((res: any) => {
                 const info = `w${res.w}h${res.h}`;
@@ -73,7 +73,7 @@ export default class Rtweb {
                     `width=${res.w},height=${res.h}`
                   );
                 } else {
-                  cb(res.frames);
+                  cb(res.steps);
                 }
               });
         },

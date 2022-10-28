@@ -3,7 +3,7 @@ import XHRAdapter from '@pollyjs/adapter-xhr';
 import FetchAdapter from '@pollyjs/adapter-fetch';
 import LocalStoragePersister from '@pollyjs/persister-local-storage';
 import multimatch from 'multimatch';
-import { POLLY_DB_NAME } from '../constant';
+import { POLLY_DB_NAME } from '../constants';
 
 const protocolReg = /^(!?)https?:\/\//;
 

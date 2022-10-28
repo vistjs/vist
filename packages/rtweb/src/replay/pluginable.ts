@@ -1,20 +1,23 @@
 import { SyncBailHook } from 'tapable';
-import { ReplayOptions } from '../types';
+import type { ReplayOptions } from '../types';
 import { logError } from '../utils';
 import { Store } from './stores';
 import { CtrlPlugin } from './ctrlPlugin';
+import { PlayerComponent } from './player';
+
 export interface ReplayerPlugin {
-  apply(recorder: Pluginable): void;
+  apply(rePlayer: Pluginable): void;
 }
 
 type HooksType = 'render';
 
-type IHOOK = Record<HooksType, SyncBailHook<any, any, any>>;
+type IHOOK = Record<HooksType, SyncBailHook<string[], unknown, unknown>>;
 
 // replay`s plugin to extend ctrl replay 和render
 export class Pluginable {
   public hooks: IHOOK;
   private defaultPlugins: ReplayerPlugin[] = [];
+  public player!: PlayerComponent;
 
   constructor(options?: ReplayOptions) {
     this.defaultPlugins.push(new CtrlPlugin());
@@ -22,8 +25,7 @@ export class Pluginable {
     this.initPlugin(options);
 
     const DEFAULT_HOOKS = {
-      //@ts-ignore has player
-      render: new SyncBailHook(['player', 'record', 'options']),
+      render: new SyncBailHook<string[], unknown, unknown>(['player', 'record', 'options']),
     };
 
     const HOOKS = this.checkHookAvailable()
@@ -41,22 +43,21 @@ export class Pluginable {
       return true;
     } catch (error) {
       logError(`Plugin hooks is not available in the current env, because ${error}`);
+      return false;
     }
   };
 
   // register hook callback
   public plugin = (type: keyof IHOOK, cb: (player: any, record: any, options: any) => void) => {
-    const name = this.hooks[type].constructor.name;
-    const method = /Async/.test(name) ? 'tapAsync' : 'tap';
-    // @ts-ignore: TODO
-    this.hooks[type][method](type, cb);
+    //const name = this.hooks[type].constructor.name;
+    // const method = /Async/.test(name) ? 'tapAsync' : 'tap';
+    this.hooks[type].tap(type, cb);
   };
 
   public play() {
     if (Store.playerStore.speed === 0) {
       Store.playerStore.setSpeed(1);
     } else {
-      //@ts-ignore has player
       this.player.play();
     }
   }
@@ -66,12 +67,10 @@ export class Pluginable {
   }
 
   public pause() {
-    //@ts-ignore has player
     this.player.pause();
   }
 
   public stop() {
-    //@ts-ignore has player
     this.player.stop();
   }
 

@@ -1,6 +1,7 @@
 import { delay } from '../utils';
 import { PlayerComponent } from './player';
-import { RecordDbData, RecordType } from '../types';
+import type { RecordDbData } from '../types';
+import { RecordType } from '../constants';
 import { genRenders } from './renders';
 
 const Render = genRenders('react');

@@ -40,7 +40,7 @@ function Page() {
     <div className="form-page">
       <form>
         <div>
-          <label htmlFor="uname">Choose a username1: </label>
+          <label htmlFor="uname">Choose a username3: </label>
           <input type="text" id="uname" name="name" onChange={onChangeInput} />
         </div>
         <div>

@@ -1,10 +1,9 @@
 import { SyncHook } from 'tapable';
 
-import { RecordOptions } from '../types';
+import type { RecordOptions } from '../types';
 import { logError } from '../utils';
 import { Watcher } from './watcher';
 import { CtrlPlugin } from './ctrlPlugin';
-
 export interface RecorderPlugin {
   apply(recorder: Pluginable): void;
 }
@@ -17,7 +16,7 @@ type IHOOK = Record<HooksType, SyncHook<any, any, any>>;
 export class Pluginable {
   protected hooks: IHOOK;
   protected defaultPlugins: RecorderPlugin[] = [];
-  public pluginWatchers: Watcher<any>[] = [];
+  public pluginWatchers: Watcher[] = [];
 
   constructor(options?: RecordOptions) {
     this.defaultPlugins.push(
@@ -51,14 +50,14 @@ export class Pluginable {
       return true;
     } catch (error) {
       logError(`Plugin hooks is not available in the current env, because ${error}`);
+      return false;
     }
   };
 
   public plugin = (type: keyof IHOOK, cb: (data: any) => void) => {
-    const name = this.hooks[type].constructor.name;
-    const method = /Async/.test(name) ? 'tapAsync' : 'tap';
-    // @ts-ignore: TODO
-    this.hooks[type][method](type, cb);
+    //const name = this.hooks[type].constructor.name;
+    //const method = /Async/.test(name) ? 'tapAsync' : 'tap';
+    this.hooks[type].tap(type, cb);
   };
 
   public use(plugin: RecorderPlugin): void {
@@ -78,7 +77,7 @@ export class Pluginable {
 
   private plugins: RecorderPlugin[] = [];
 
-  public addWatcher = (watcher: Watcher<any>) => {
+  public addWatcher = (watcher: Watcher) => {
     this.pluginWatchers.push(watcher);
   };
 }

@@ -1,4 +1,4 @@
-import { APP_FLAG, RECORD_TABLE } from '../constant';
+import { APP_FLAG, RECORD_TABLE } from '../constants';
 import localforage from 'localforage';
 
 export const isDev = process.env.NODE_ENV === 'development';
@@ -111,11 +111,11 @@ export function logAsciiLogo() {
   /* eslint-disable */
   return console.log(
     `%c
-______ _                _____       _   
-|_   _(_)              /  __ \\     | |  
-  | |  _ _ __ ___   ___| /  \\/ __ _| |_ 
+______ _                _____       _
+|_   _(_)              /  __ \\     | |
+  | |  _ _ __ ___   ___| /  \\/ __ _| |_
   | | | | '_ \` _ \\ / _ \\ |    / _\` | __|
-  | | | | | | | | |  __/ \\__/\\ (_| | |_ 
+  | | | | | | | | |  __/ \\__/\\ (_| | |_
   \\_/ |_|_| |_| |_|\\___|\\____/\\__,_|\\__|
     `,
     'color: #1475b2;'
@@ -162,8 +162,8 @@ export async function getRecordsFromDB(dbName: string, id = 1) {
   });
   try {
     const info = (await store.getItem(`id_${id}`)) as Object;
-    const frames = await store.getItem(`${RECORD_TABLE}_${id}`);
-    return { frames, ...info };
+    const steps = await store.getItem(`${RECORD_TABLE}_${id}`);
+    return { steps, ...info };
   } catch (err) {
     console.log(err);
     return [];

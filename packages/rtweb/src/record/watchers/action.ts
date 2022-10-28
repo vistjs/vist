@@ -1,8 +1,9 @@
 import { Watcher } from '../watcher';
-import { eventWithTime, inputData, mouseInteractionData, scrollData } from 'rrweb/typings/types.d';
-import { record, EventType, IncrementalSource, MouseInteractions } from 'rrweb';
+import type { eventWithTime, inputData, mouseInteractionData, scrollData } from 'rrweb/typings/types.d';
+import { record, EventType, IncrementalSource } from 'rrweb';
 import { isMouseEvent, getMouseEventName, setClientXY, getClientXY } from '../../utils';
-import { RecordType, RecordData, RecorderStatus } from '../../types';
+import { RecordType, RecorderEventTypes } from '../../constants/record';
+import type { RecordData } from '../../types';
 
 function nodeStore(node: any) {
   if (node.id) {
@@ -13,37 +14,6 @@ function nodeStore(node: any) {
   return getClientXY(node.id);
 }
 
-const sourceName = {
-  [IncrementalSource.Mutation]: 'Mutation',
-  [IncrementalSource.MouseMove]: 'MouseMove',
-  [IncrementalSource.MouseInteraction]: 'MouseInteraction',
-  [IncrementalSource.Scroll]: 'Scroll',
-  [IncrementalSource.ViewportResize]: 'ViewportResize',
-  [IncrementalSource.Input]: 'Input',
-  [IncrementalSource.TouchMove]: 'TouchMove',
-  [IncrementalSource.MediaInteraction]: 'MediaInteraction',
-  [IncrementalSource.StyleSheetRule]: 'StyleSheetRule',
-  [IncrementalSource.CanvasMutation]: 'CanvasMutation',
-  [IncrementalSource.Font]: 'Font',
-  [IncrementalSource.Log]: 'Log',
-  [IncrementalSource.Drag]: 'Drag',
-  [IncrementalSource.StyleDeclaration]: 'StyleDeclaration',
-};
-
-const MouseInteractionName = {
-  [MouseInteractions.MouseUp]: 'MouseUp',
-  [MouseInteractions.MouseDown]: 'MouseDown',
-  [MouseInteractions.Click]: 'Click',
-  [MouseInteractions.ContextMenu]: 'ContextMenu',
-  [MouseInteractions.DblClick]: 'DblClick',
-  [MouseInteractions.Focus]: 'Focus',
-  [MouseInteractions.Blur]: 'Blur',
-  [MouseInteractions.TouchStart]: 'TouchStart',
-  [MouseInteractions.TouchMove_Departed]: 'TouchMove_Departed',
-  [MouseInteractions.TouchEnd]: 'TouchEnd',
-  [MouseInteractions.TouchCancel]: 'TouchCancel',
-};
-
 const actionSources = [
   IncrementalSource.MouseInteraction,
   IncrementalSource.Scroll,
@@ -52,9 +22,11 @@ const actionSources = [
   IncrementalSource.Drag,
 ];
 
+type PushData<T extends RecordType = RecordType> = Pick<RecordData<T>, 'type' | 'dom' | 'data'>;
+
 type Rule = {
   judge: (record: eventWithTime, watcher?: ActionWatcher) => boolean;
-  handle?: (record: eventWithTime, watcher?: ActionWatcher) => RecordData['extras'] & { type: RecordType };
+  emitData?: (record: eventWithTime, watcher?: ActionWatcher) => PushData;
   next?: Rule | Rule[];
 };
 
@@ -81,7 +53,7 @@ const isMouseRecord: Rule = {
   judge: (record: eventWithTime) => {
     return isMouseEvent(record.data);
   },
-  handle: (record: eventWithTime) => {
+  emitData: (record: eventWithTime): PushData<RecordType.MOUSE> => {
     return {
       type: RecordType.MOUSE,
       dom: nodeStore(record.data),
@@ -96,13 +68,13 @@ const isMouseRecord: Rule = {
 };
 
 const isInputRecord: Rule = {
-  judge: (record: eventWithTime, watcher: ActionWatcher) => {
+  judge: (record: eventWithTime, watcher?: ActionWatcher) => {
     if ((record.data as inputData).source === IncrementalSource.Input) {
       return true;
     }
     return false;
   },
-  handle: (record: eventWithTime, watcher: ActionWatcher) => {
+  emitData: (record: eventWithTime, watcher?: ActionWatcher): PushData<RecordType.INPUT> => {
     return {
       type: RecordType.INPUT,
       dom: nodeStore(record.data),
@@ -112,13 +84,13 @@ const isInputRecord: Rule = {
 };
 
 const isScrollRecord: Rule = {
-  judge: (record: eventWithTime, watcher: ActionWatcher) => {
+  judge: (record: eventWithTime, watcher?: ActionWatcher) => {
     if ((record.data as scrollData).source === IncrementalSource.Scroll) {
       return true;
     }
     return false;
   },
-  handle: (record: eventWithTime, watcher: ActionWatcher) => {
+  emitData: (record: eventWithTime, watcher?: ActionWatcher): PushData<RecordType.SCROLL> => {
     return {
       type: RecordType.SCROLL,
       dom: nodeStore(record.data),
@@ -147,39 +119,19 @@ const interestedRecords: Rule[] = [
   ]),
 ];
 
-export class ActionWatcher extends Watcher<any> {
+export class ActionWatcher extends Watcher {
   private stopRecord: Function | undefined;
   public data: eventWithTime[] = [];
-  public status: RecorderStatus = RecorderStatus.PAUSE;
+  public status: RecorderEventTypes = RecorderEventTypes.INIT;
 
   protected init() {
     this.context.addEventListener('beforeunload', this.handleFn);
 
     this.stopRecord = record({
       emit: (recordData) => {
-        if (this.status === RecorderStatus.HALT) {
+        if (this.status === RecorderEventTypes.STOP) {
           return;
         }
-        // console.log(
-        //   //@ts-ignore xxx
-        //   `TYPE:${recordData.type}, source: ${
-        //     //@ts-ignore xxx
-        //     recordData.data.source
-        //   }, data: `,
-        //   recordData.data
-        // );
-        if (recordData.type === 3) {
-          // console.log(
-          //   //@ts-ignore xxx
-          //   `rrweb record, source:${sourceName[recordData.data.source]}, type: ${
-          //     //@ts-ignore xxx
-          //     MouseInteractionName[recordData.data.type]
-          //   }, data: `,
-          //   recordData.data
-          // );
-          // console.log(`mirror: `, record.mirror);
-        }
-
         this.filter(recordData);
       },
       sampling: {
@@ -193,11 +145,11 @@ export class ActionWatcher extends Watcher<any> {
       },
     });
 
-    this.status = RecorderStatus.RUNNING;
+    this.status = RecorderEventTypes.RECORD;
 
     this.uninstall(() => {
       this.stopRecord?.();
-      this.status = RecorderStatus.HALT;
+      this.status = RecorderEventTypes.STOP;
     });
   }
 
@@ -207,9 +159,9 @@ export class ActionWatcher extends Watcher<any> {
     // this.emitData(this.wrapData())
   }
 
-  private push(type: any, record: eventWithTime, extras: any) {
+  private push(record: eventWithTime, extras: PushData) {
     this.data.push(record);
-    this.emitData(type, record, extras);
+    this.emitData(extras.type, extras.data, extras.dom, record);
   }
 
   // filter rule pipeline
@@ -221,15 +173,15 @@ export class ActionWatcher extends Watcher<any> {
     while ((rule = rules.shift())) {
       if (Array.isArray(rule)) {
         for (const sub of rule) {
-          const { judge, handle } = sub;
+          const { judge, emitData } = sub;
           if (judge(record, this)) {
-            const { type, ...extras } = handle?.(record, this) || {};
-            this.push(type, record, extras);
+            const pushData = emitData?.(record, this);
+            pushData && this.push(record, pushData);
             break;
           }
         }
       } else {
-        const { judge, handle, next } = rule;
+        const { judge, emitData, next } = rule;
         if (!judge(record, this)) {
           continue;
         }
@@ -237,8 +189,8 @@ export class ActionWatcher extends Watcher<any> {
           //deep walk
           rules.push(next);
         } else {
-          const { type, ...extras } = handle?.(record, this) || {};
-          this.push(type, record, extras);
+          const pushData = emitData?.(record, this);
+          pushData && this.push(record, pushData);
         }
       }
     }

@@ -1,4 +1,4 @@
-import { record, EventType, IncrementalSource, MouseInteractions } from 'rrweb';
+import { IncrementalSource, MouseInteractions } from 'rrweb';
 
 export function isClickEvent(data: any) {
   return (
@@ -32,7 +32,7 @@ export function getMouseEventName(data: any) {
   return MouseInteractionName[data.type as keyof typeof MouseInteractionName];
 }
 
-const nodePosMap: { [k: number | string]: { x: number; y: number } } = { '-99': { x: 0, y: 0 } };
+const nodePosMap: { [k: number | string]: { x: number; y: number } } = { '-99': { x: 0, y: 0 } }; // -99 latest point position
 
 export function setClientXY(nodeId: number, x: number, y: number) {
   nodePosMap['-99'] = nodePosMap[nodeId] = { x, y };
@@ -49,6 +49,6 @@ export function getClientXY(nodeId: any) {
 
 export function getNodeClientXY(node: any) {
   const id = node['__sn']?.id;
-  if (typeof id === 'undefined') return null;
+  if (typeof id === 'undefined') return undefined;
   return nodePosMap[id];
 }

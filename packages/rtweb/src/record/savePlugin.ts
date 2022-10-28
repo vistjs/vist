@@ -1,15 +1,16 @@
 import { RecorderModule } from '.';
+import { RecorderPlugin } from './pluginable';
 import localforage from 'localforage';
-import { RECORD_TABLE, POLLY_DB_NAME } from '../constant';
-import { RecordDbData, RecordData } from '../types';
+import { RECORD_TABLE, POLLY_DB_NAME } from '../constants';
+import type { RecordData } from '../types';
 type OPTIONS = {
   dbName: string;
   remoteUrl?: string;
   pid?: number; // project id
 };
 
-export class SavePlugin {
-  private records: RecordDbData[] = [];
+export class SavePlugin implements RecorderPlugin {
+  private records: RecordData[] = [];
   private store;
   private remoteUrl: string | undefined;
   private pid: number | undefined;
@@ -28,9 +29,10 @@ export class SavePlugin {
 
   apply(recorder: RecorderModule) {
     const { plugin } = recorder;
-    plugin('emit', (record: RecordData) => {
+    // omit eventWithTime
+    plugin('emit', ({ eventWithTime, ...record }: RecordData) => {
       //console.log(`received record:`, record);
-      this.records.push({ type: record.type, time: record.time, ...record.extras });
+      this.records.push(record);
     });
 
     plugin('end', () => {
@@ -49,14 +51,14 @@ export class SavePlugin {
         });
       } else {
         setTimeout(() => {
-          const apis = localStorage.getItem(POLLY_DB_NAME);
+          const mocks = localStorage.getItem(POLLY_DB_NAME);
           fetch(`${this.remoteUrl}/api/open/case`, {
             method: 'POST', // or 'PUT'
             headers: {
               'Content-Type': 'application/json',
             },
             mode: 'cors',
-            body: JSON.stringify({ frames: this.records, apis, ...info, pid: this.pid }),
+            body: JSON.stringify({ steps: this.records, mocks, ...info, pid: this.pid }),
           })
             .then((response) => response.json())
             .then((data) => {

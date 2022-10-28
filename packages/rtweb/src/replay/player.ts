@@ -1,32 +1,30 @@
 import { renderAll } from './render';
-import { RecordDbData, ReplayInternalOptions, PlayerEventTypes } from '../types';
+import type { RecordData, ReplayInternalOptions } from '../types';
+import { PlayerEventTypes } from '../constants';
 import { getTime, delay, observer, AnimationFrame } from '../utils';
-
 import { Store } from './stores';
 import { reaction, toJS } from 'mobx';
 import { PlayerModule } from '.';
 export class PlayerComponent {
-  target: HTMLElement;
   options: ReplayInternalOptions;
-
-  records: RecordDbData[];
+  records!: RecordData[];
   speed = 0;
   recordIndex = 0;
   frameIndex = 0;
-  frameInterval: number;
+  frameInterval!: number;
   maxFrameInterval = 250;
-  frames: number[];
+  frames!: number[];
   maxFps = 30;
 
-  initTime: number;
-  startTime: number;
+  initTime!: number;
+  startTime!: number;
   animationDelayTime = 300;
   elapsedTime = 0;
 
   viewIndex = 0;
 
-  RAF: AnimationFrame;
-  isJumping: boolean;
+  RAF!: AnimationFrame;
+  isJumping!: boolean;
 
   maxIntensityStep = 8;
 
@@ -130,7 +128,7 @@ export class PlayerComponent {
     return nextTime;
   }
 
-  private play() {
+  public play() {
     this.playAudio();
 
     if (this.RAF && this.RAF.requestID) {
@@ -176,7 +174,7 @@ export class PlayerComponent {
   private pauseVideos() {}
 
   private renderEachFrame() {
-    let data: RecordDbData;
+    let data: RecordData;
     while (
       this.recordIndex < this.records.length &&
       (data = this.records[this.recordIndex]).time <= this.frames[this.frameIndex]
@@ -198,7 +196,7 @@ export class PlayerComponent {
     }
   }
 
-  private stop() {
+  public stop() {
     this.speed = 0;
     this.recordIndex = 0;
     this.frameIndex = 0;
@@ -207,9 +205,8 @@ export class PlayerComponent {
     observer.emit(PlayerEventTypes.STOP);
   }
 
-  private execFrame(record: RecordDbData) {
+  private execFrame(record: RecordData) {
     const { isJumping, speed } = this;
-    // renderAll.call(this, record, { isJumping, speed });
     this.c.hooks.render.call(this, record, { isJumping, speed });
   }
 
@@ -233,12 +230,12 @@ export class PlayerComponent {
     this.frames = frames;
   }
 
-  private orderRecords(records: RecordDbData[]) {
+  private orderRecords(records: RecordData[]) {
     if (!records.length) {
       return [];
     }
 
-    records.sort((a: RecordDbData, b: RecordDbData) => {
+    records.sort((a: RecordData, b: RecordData) => {
       return a.time - b.time;
     });
 
@@ -249,7 +246,7 @@ export class PlayerComponent {
     this.calcFrames();
   }
 
-  private processing(records: RecordDbData[]) {
+  private processing(records: RecordData[]) {
     return this.orderRecords(records);
   }
 }

@@ -1,19 +1,10 @@
-import ReactTestUtils from 'react-dom/test-utils';
 import { RecordDbData } from '../../../types';
-
-const methodMap = {
-  dragstart: 'dragStart',
-  dragend: 'dragEnd',
-  dragenter: 'dragEnter',
-  dragleave: 'dragLeave',
-  dragover: 'dragOver',
-} as any;
 
 const wm = new WeakMap();
 
 export function renderDrag({ dom, data }: RecordDbData) {
-  const node = document.elementFromPoint(dom.x, dom.y) as HTMLElement;
-  const type = data?.type as keyof typeof ReactTestUtils.Simulate;
+  const node = document.elementFromPoint(dom?.x || 0, dom?.y || 0) as HTMLElement;
+  const type = data?.type as any;
   const eventData = {
     ...data,
     bubbles: true,
@@ -44,13 +35,7 @@ export function renderDrag({ dom, data }: RecordDbData) {
       dataTransfer: eventData.dataTransfer,
     })
   );
-  //@ts-ignore xxx
   if (type === 'dragend' || type === 'drop') {
     wm.delete(draggingNode);
   }
-
-  // Simulate canot trigger the listener no the real node，it collect listener on react props
-  // so react-dnd will
-  // const method = methodMap[type] || type;
-  // ReactTestUtils.Simulate[method as keyof typeof ReactTestUtils.Simulate](node, eventData as any);
 }

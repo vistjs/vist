@@ -1,9 +1,8 @@
-import ReactTestUtils from 'react-dom/test-utils';
-import { RecordDbData } from '../../../types';
+import type { RecordData } from '../../../types';
 import { isTextInputElement } from '../../../utils';
-import { DOCUMENT_NODE_ID } from '../../../constant';
+import { DOCUMENT_NODE_ID } from '../../../constants';
 
-export function renderMouse({ dom, data }: RecordDbData) {
+export function renderMouse({ dom, data }: RecordData) {
   const node = document.elementFromPoint(dom.x, dom.y) as HTMLElement;
 
   if (data?.type === 'blur') {
@@ -27,7 +26,7 @@ export function renderMouse({ dom, data }: RecordDbData) {
   }
 }
 
-export function renderInput({ dom, data }: RecordDbData) {
+export function renderInput({ dom, data }: RecordData) {
   const node = document.elementFromPoint(dom.x, dom.y) as HTMLInputElement;
   if (isTextInputElement(node)) {
     const descriptor = Object.getOwnPropertyDescriptor(node.constructor.prototype, 'value');
@@ -73,7 +72,7 @@ export function renderInput({ dom, data }: RecordDbData) {
   // ReactTestUtils.Simulate.change(node);
 }
 
-export function renderScroll({ dom, data }: RecordDbData) {
+export function renderScroll({ dom, data }: RecordData) {
   if (data?.id === -1) {
     return;
   }
