@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -8,13 +8,13 @@ import Rtweb from 'rtweb';
 
 new Rtweb({ remoteUrl: 'http://127.0.0.1:3000', pid: 1, requestMock: ['63459b8739ca915a6903c126.mockapi.io/**'] });
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById('root') as HTMLElement
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
