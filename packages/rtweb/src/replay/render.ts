@@ -1,42 +1,32 @@
-import { delay } from '../utils';
 import { PlayerComponent } from './player';
-import type { RecordDbData } from '../types';
+import type { RecordData } from '../types';
 import { RecordType } from '../constants';
-import { genRenders } from './renders';
+import * as Render from './renders';
 
-const Render = genRenders('react');
-
-export async function renderAll(
-  this: PlayerComponent,
-  recordData: RecordDbData,
-  opts?: { speed: number; isJumping: boolean }
-) {
-  const { isJumping, speed } = opts || {};
-  const delayTime = isJumping ? 0 : 200;
+export async function renderAll(this: PlayerComponent, recordData: RecordData) {
   const { type } = recordData;
 
   // waiting for mouse or scroll transform animation finish
-  const actionDelay = () => (delayTime ? delay(delayTime) : Promise.resolve());
 
   switch (type) {
     case RecordType.MOUSE: {
-      Render.renderMouse(recordData);
+      Render.renderMouse(recordData as RecordData<RecordType.MOUSE>);
       break;
     }
     case RecordType.INPUT: {
-      Render.renderInput(recordData);
+      Render.renderInput(recordData as RecordData<RecordType.INPUT>);
       break;
     }
     case RecordType.DRAG: {
-      Render.renderDrag(recordData);
+      Render.renderDrag(recordData as RecordData<RecordType.DRAG>);
       break;
     }
     case RecordType.EVENT: {
-      Render.renderEvent(recordData);
+      Render.renderEvent(recordData as RecordData<RecordType.EVENT>);
       break;
     }
     case RecordType.SCROLL: {
-      Render.renderScroll(recordData);
+      Render.renderScroll(recordData as RecordData<RecordType.SCROLL>);
       break;
     }
     default: {

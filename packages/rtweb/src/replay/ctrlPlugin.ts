@@ -1,5 +1,5 @@
 import { PlayerModule } from '.';
-import { RecordType, PlayerEventTypes } from '../constants';
+import { RecordType } from '../constants';
 import type { RecordData } from '../types';
 import domtoimage from 'dom-to-image';
 
@@ -7,7 +7,7 @@ export class CtrlPlugin {
   constructor() {}
 
   apply(rePlayer: PlayerModule) {
-    const { on, plugin } = rePlayer;
+    const { plugin } = rePlayer;
 
     plugin('render', (_, record: RecordData<RecordType.CAPTURE>) => {
       if (record.type === RecordType.CAPTURE) {
@@ -24,7 +24,7 @@ export class CtrlPlugin {
       }
     });
 
-    on(PlayerEventTypes.STOP, () => {
+    plugin('stop', () => {
       if (window.rtFinishReplay) {
         window.rtFinishReplay();
       }

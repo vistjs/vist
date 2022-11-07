@@ -68,13 +68,13 @@ const isMouseRecord: Rule = {
 };
 
 const isInputRecord: Rule = {
-  judge: (record: eventWithTime, watcher?: ActionWatcher) => {
+  judge: (record: eventWithTime) => {
     if ((record.data as inputData).source === IncrementalSource.Input) {
       return true;
     }
     return false;
   },
-  emitData: (record: eventWithTime, watcher?: ActionWatcher): PushData<RecordType.INPUT> => {
+  emitData: (record: eventWithTime): PushData<RecordType.INPUT> => {
     return {
       type: RecordType.INPUT,
       dom: nodeStore(record.data),
@@ -84,13 +84,13 @@ const isInputRecord: Rule = {
 };
 
 const isScrollRecord: Rule = {
-  judge: (record: eventWithTime, watcher?: ActionWatcher) => {
+  judge: (record: eventWithTime) => {
     if ((record.data as scrollData).source === IncrementalSource.Scroll) {
       return true;
     }
     return false;
   },
-  emitData: (record: eventWithTime, watcher?: ActionWatcher): PushData<RecordType.SCROLL> => {
+  emitData: (record: eventWithTime): PushData<RecordType.SCROLL> => {
     return {
       type: RecordType.SCROLL,
       dom: nodeStore(record.data),

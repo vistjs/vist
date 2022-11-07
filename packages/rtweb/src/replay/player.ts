@@ -28,10 +28,10 @@ export class PlayerComponent {
 
   maxIntensityStep = 8;
 
-  c: PlayerModule;
+  container: PlayerModule;
 
-  constructor(options: ReplayInternalOptions, c: PlayerModule) {
-    this.c = c;
+  constructor(options: ReplayInternalOptions, container: PlayerModule) {
+    this.container = container;
     this.options = options;
     this.init();
   }
@@ -51,7 +51,7 @@ export class PlayerComponent {
     }
   }
 
-  private watchProgress(endTime: any) {
+  private watchProgress() {
     this.recalculateProgress();
   }
 
@@ -66,7 +66,7 @@ export class PlayerComponent {
 
     this.listenStore();
 
-    observer.on(PlayerEventTypes.JUMP, async (state: { time: number; percent?: number }) => this.jump(state, true));
+    observer.on(PlayerEventTypes.JUMP, async (state: { time: number; percent?: number }) => this.jump(state));
 
     observer.on(PlayerEventTypes.RESIZE, async () => {
       // wait for scaling page finish to get target offsetWidth
@@ -74,12 +74,8 @@ export class PlayerComponent {
       this.recalculateProgress();
     });
 
-    observer.on(PlayerEventTypes.PROGRESS, (frame: number) => {
-      const percent = frame / (this.frames.length - 1);
-    });
-
-    this.c.hooks.render.tap('inner render', (context, record, options) => {
-      renderAll.call(context, record, options);
+    this.container.hooks.render.tap('render', (context, record) => {
+      renderAll.call(context, record);
     });
   }
 
@@ -87,9 +83,9 @@ export class PlayerComponent {
     this.records = this.processing(toJS(Store.replayDataStore.records));
   }
 
-  public async jump(state: { time: number; percent?: number }, shouldLoading = false) {
+  public async jump(state: { time: number; percent?: number }) {
     this.isJumping = true;
-    const { time, percent } = state;
+    const { time } = state;
 
     const frameIndex =
       1 +
@@ -99,6 +95,7 @@ export class PlayerComponent {
         if (time >= cur && time <= next) {
           return true;
         }
+        return false;
       });
 
     this.initViewState();
@@ -109,7 +106,7 @@ export class PlayerComponent {
     this.startTime = time;
 
     this.playAudio();
-    this.loopFramesByTime(this.frames[this.frameIndex]);
+    this.loopFramesByTime(this.frames[frameIndex] as number);
 
     this.isJumping = false;
   }
@@ -140,11 +137,11 @@ export class PlayerComponent {
     this.RAF.start();
 
     this.initTime = getTime();
-    this.startTime = this.frames[this.frameIndex];
+    this.startTime = this.frames[this.frameIndex] as number;
 
     this.initViewState();
 
-    async function loop(this: PlayerComponent, t: number, loopIndex: number) {
+    async function loop(this: PlayerComponent) {
       const timeStamp = getTime() - this.initTime;
       if (this.frameIndex > 0 && this.frameIndex >= this.frames.length) {
         this.stop();
@@ -154,10 +151,11 @@ export class PlayerComponent {
       const currTime = this.startTime + timeStamp * this.speed;
       this.loopFramesByTime(currTime);
 
-      this.elapsedTime = (currTime - this.frames[0]) / 1000;
+      this.elapsedTime = (currTime - this.frames[0]!) / 1000;
 
       this.syncAudio();
       this.syncVideos();
+      this.syncAudioTargetNode();
     }
   }
 
@@ -177,7 +175,7 @@ export class PlayerComponent {
     let data: RecordData;
     while (
       this.recordIndex < this.records.length &&
-      (data = this.records[this.recordIndex]).time <= this.frames[this.frameIndex]
+      (data = this.records[this.recordIndex]!).time <= this.frames[this.frameIndex]!
     ) {
       this.execFrame(data);
       this.recordIndex++;
@@ -203,16 +201,18 @@ export class PlayerComponent {
     this.elapsedTime = 0; // unit: sec
     this.pause();
     observer.emit(PlayerEventTypes.STOP);
+    this.container.hooks.stop.call(this);
   }
 
   private execFrame(record: RecordData) {
     const { isJumping, speed } = this;
-    this.c.hooks.render.call(this, record, { isJumping, speed });
+    this.container.hooks.render.call(this, record, { isJumping, speed });
   }
 
   private calcFrames(maxInterval = this.maxFrameInterval) {
     const preTime = this.frames && this.frames[this.frameIndex];
     const { duration, startTime, endTime } = Store.progressStore;
+    if (duration <= 0) return;
     this.frameInterval = Math.max(20, Math.min(maxInterval, (duration / 60 / 1000) * 60 - 40));
     const interval = this.frameInterval;
     const frames: number[] = [];

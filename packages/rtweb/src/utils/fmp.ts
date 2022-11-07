@@ -27,7 +27,7 @@ export class FMP {
     this.timer = window.setTimeout(() => {
       const entries = performance
         .getEntriesByType('resource')
-        .filter((item: PerformanceResourceTiming) => this.isMatchType(item));
+        .filter((item: unknown) => this.isMatchType(item as PerformanceResourceTiming));
       const len = entries.length;
       if (len <= this.len) {
         performance.clearResourceTimings();
@@ -51,7 +51,7 @@ export class FMP {
       case 'iframe':
         return true;
       default:
-        break;
+        return false;
     }
   }
 

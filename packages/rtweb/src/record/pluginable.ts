@@ -1,5 +1,4 @@
 import { SyncHook } from 'tapable';
-
 import type { RecordOptions } from '../types';
 import { logError } from '../utils';
 import { Watcher } from './watcher';
@@ -8,7 +7,7 @@ export interface RecorderPlugin {
   apply(recorder: Pluginable): void;
 }
 
-type HooksType = 'beforeRun' | 'run' | 'emit' | 'end';
+export type HooksType = 'beforeRecord' | 'record' | 'emit' | 'stop';
 
 type IHOOK = Record<HooksType, SyncHook<any, any, any>>;
 
@@ -29,10 +28,10 @@ export class Pluginable {
     this.initPlugin(options);
 
     const DEFAULT_HOOKS = {
-      beforeRun: new SyncHook(),
-      run: new SyncHook(),
+      beforeRecord: new SyncHook(),
+      record: new SyncHook(),
       emit: new SyncHook(['data']),
-      end: new SyncHook(),
+      stop: new SyncHook(),
     };
 
     const HOOKS = this.checkHookAvailable()
@@ -54,7 +53,7 @@ export class Pluginable {
     }
   };
 
-  public plugin = (type: keyof IHOOK, cb: (data: any) => void) => {
+  public plugin = (type: keyof IHOOK, cb: (data?: any) => void) => {
     //const name = this.hooks[type].constructor.name;
     //const method = /Async/.test(name) ? 'tapAsync' : 'tap';
     this.hooks[type].tap(type, cb);

@@ -1,5 +1,5 @@
 export class AnimationFrame {
-  requestID: number;
+  requestID!: number;
   fps: number;
   animate: Function;
   index = 0;

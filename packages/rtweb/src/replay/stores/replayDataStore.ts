@@ -1,11 +1,11 @@
 import { makeObservable, observable, action } from 'mobx';
 
-import { RecordDbData } from '../../types';
+import { RecordData } from '../../types';
 
 import { RootStore } from '.';
 
 const initState = {
-  records: [] as RecordDbData[],
+  records: [] as RecordData[],
 };
 
 export type ReplayDataState = typeof initState;

@@ -1,10 +1,12 @@
-import { RecordDbData } from '../../../types';
+import type { RecordData } from '../../types';
+import { RecordType } from '../../constants';
 
 const wm = new WeakMap();
 
-export function renderDrag({ dom, data }: RecordDbData) {
-  const node = document.elementFromPoint(dom?.x || 0, dom?.y || 0) as HTMLElement;
-  const type = data?.type as any;
+export function renderDrag({ dom, data }: RecordData<RecordType.DRAG>) {
+  if (!dom) return;
+  const node = document.elementFromPoint(dom.x, dom.y) as HTMLElement;
+  const type = data.type;
   const eventData = {
     ...data,
     bubbles: true,
@@ -14,7 +16,7 @@ export function renderDrag({ dom, data }: RecordDbData) {
   const draggingInfo = eventData.draggingInfo;
   Reflect.deleteProperty(eventData, 'draggingInfo');
 
-  if (eventData.relatedTarget) {
+  if (data.relatedTarget) {
     eventData.relatedTarget = document.elementFromPoint(
       eventData.relatedTarget.x,
       eventData.relatedTarget.y

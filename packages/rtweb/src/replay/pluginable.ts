@@ -1,4 +1,4 @@
-import { SyncBailHook } from 'tapable';
+import { SyncBailHook, SyncHook } from 'tapable';
 import type { ReplayOptions } from '../types';
 import { logError } from '../utils';
 import { Store } from './stores';
@@ -9,9 +9,9 @@ export interface ReplayerPlugin {
   apply(rePlayer: Pluginable): void;
 }
 
-type HooksType = 'render';
+export type HooksType = 'render' | 'stop';
 
-type IHOOK = Record<HooksType, SyncBailHook<string[], unknown, unknown>>;
+type IHOOK = Record<HooksType, SyncHook<any, unknown, unknown>>;
 
 // replay`s plugin to extend ctrl replay 和render
 export class Pluginable {
@@ -25,7 +25,8 @@ export class Pluginable {
     this.initPlugin(options);
 
     const DEFAULT_HOOKS = {
-      render: new SyncBailHook<string[], unknown, unknown>(['player', 'record', 'options']),
+      render: new SyncBailHook<any[], unknown, unknown>(['player', 'record', 'options']),
+      stop: new SyncBailHook<any[], unknown, unknown>(),
     };
 
     const HOOKS = this.checkHookAvailable()
@@ -39,7 +40,7 @@ export class Pluginable {
 
   public checkHookAvailable = () => {
     try {
-      new SyncBailHook().call(null);
+      new SyncHook().call(null);
       return true;
     } catch (error) {
       logError(`Plugin hooks is not available in the current env, because ${error}`);
@@ -48,7 +49,7 @@ export class Pluginable {
   };
 
   // register hook callback
-  public plugin = (type: keyof IHOOK, cb: (player: any, record: any, options: any) => void) => {
+  public plugin = (type: keyof IHOOK, cb: (player?: any, record?: any, options?: any) => any) => {
     //const name = this.hooks[type].constructor.name;
     // const method = /Async/.test(name) ? 'tapAsync' : 'tap';
     this.hooks[type].tap(type, cb);

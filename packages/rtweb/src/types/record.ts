@@ -70,13 +70,4 @@ export type RecordData<T extends RecordType = RecordType> = {
   eventWithTime?: eventWithTime;
 };
 
-export type RecordDbData = {
-  type: RecordType;
-  time: number;
-  dom?: { x: number; y: number };
-  data?: {
-    [k: string]: any;
-  };
-};
-
 export type RecorderMiddleware = (data: RecordData, n: () => Promise<void>) => Promise<void>;

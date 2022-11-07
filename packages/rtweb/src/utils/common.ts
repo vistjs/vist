@@ -149,6 +149,7 @@ export function removeGlobalVariables() {
         return true;
       }
     }
+    return false;
   }) as (keyof Window)[];
 
   targetKeys.forEach((key) => {
@@ -161,12 +162,10 @@ export async function getRecordsFromDB(dbName: string, id = 1) {
     name: dbName,
   });
   try {
-    const info = (await store.getItem(`id_${id}`)) as Object;
-    const steps = await store.getItem(`${RECORD_TABLE}_${id}`);
-    return { steps, ...info };
+    return await store.getItem(`${RECORD_TABLE}_${id}`);
   } catch (err) {
     console.log(err);
-    return [];
+    return { steps: [] };
   }
 }
 
@@ -176,8 +175,21 @@ export function getUrlParam(name: string) {
     window.location.search.substring(1).match(reg) ||
     window.location.hash.substring(window.location.hash.search(/\?/) + 1).match(reg);
   if (r != null) {
-    return decodeURIComponent(r[2]);
+    return decodeURIComponent(r[2]!);
   }
+  return '';
+}
+
+export function setUrlParam(url: string, name: string, value?: string) {
+  if (!value) {
+    value = name;
+    name = url;
+    url = window.location.href;
+  }
+  if (url.indexOf('?') === -1 && url.indexOf('#') === -1) {
+    return `${url}?${name}=${encodeURIComponent(value)}`;
+  }
+  return url.replace(new RegExp('(\\?|&|#)' + name + '=([^&#]*)'), `${name}=${encodeURIComponent(value)}`);
 }
 
 export function cloneKeys(obj: { [key: string]: any }, keys: string[]) {
@@ -193,10 +205,10 @@ export function getEventTarget(event: Event): EventTarget | null {
     if ('composedPath' in event) {
       const path = event.composedPath();
       if (path.length) {
-        return path[0];
+        return path[0]!;
       }
     } else if ('path' in event && (event as unknown as { path: EventTarget[] }).path.length) {
-      return (event as unknown as { path: EventTarget[] }).path[0];
+      return (event as unknown as { path: EventTarget[] }).path[0]!;
     }
     return event.target;
   } catch {

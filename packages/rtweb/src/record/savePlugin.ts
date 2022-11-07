@@ -10,6 +10,7 @@ type OPTIONS = {
 };
 
 export class SavePlugin implements RecorderPlugin {
+  private recordUrl: string;
   private records: RecordData[] = [];
   private store;
   private remoteUrl: string | undefined;
@@ -17,14 +18,14 @@ export class SavePlugin implements RecorderPlugin {
 
   constructor(options: OPTIONS) {
     /** init plugin options */
-    if (!options.remoteUrl) {
-      this.store = localforage.createInstance({
-        name: options.dbName,
-      });
-    } else {
+    this.store = localforage.createInstance({
+      name: options.dbName,
+    });
+    if (options.remoteUrl) {
       this.remoteUrl = options.remoteUrl;
       this.pid = options.pid;
     }
+    this.recordUrl = window.location.href;
   }
 
   apply(recorder: RecorderModule) {
@@ -35,21 +36,25 @@ export class SavePlugin implements RecorderPlugin {
       this.records.push(record);
     });
 
-    plugin('end', () => {
+    plugin('stop', () => {
       console.log('recording finish');
       const info = {
-        url: window.location.href,
-        w: window.innerWidth,
-        h: window.innerHeight,
+        url: this.recordUrl,
+        width: window.innerWidth,
+        height: window.innerHeight,
       };
-      if (!this.remoteUrl) {
-        this.store?.setItem(`id_1`, info).then(() => {
-          this.records = [];
+      this.store
+        ?.setItem(`${RECORD_TABLE}_1`, { steps: this.records, ...info, pid: this.pid })
+        .then(() => {
+          if (!this.remoteUrl) {
+            this.records = [];
+          }
+        })
+        .catch((e) => {
+          console.log('e', e);
         });
-        this.store?.setItem(`${RECORD_TABLE}_1`, this.records).then(() => {
-          this.records = [];
-        });
-      } else {
+      if (this.remoteUrl) {
+        const name = window.prompt('please input case name');
         setTimeout(() => {
           const mocks = localStorage.getItem(POLLY_DB_NAME);
           fetch(`${this.remoteUrl}/api/open/case`, {
@@ -58,7 +63,7 @@ export class SavePlugin implements RecorderPlugin {
               'Content-Type': 'application/json',
             },
             mode: 'cors',
-            body: JSON.stringify({ steps: this.records, mocks, ...info, pid: this.pid }),
+            body: JSON.stringify({ steps: this.records, mocks, ...info, pid: this.pid, name }),
           })
             .then((response) => response.json())
             .then((data) => {

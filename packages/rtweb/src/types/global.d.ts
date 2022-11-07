@@ -1,11 +1,9 @@
-import { RecordDbData, ReplayData } from '.';
+import { RecordData } from '.';
 declare global {
   interface Window {
     // TODO 重命名
     G_RECORD_OPTIONS: any;
-    G_REPLAY_RECORDS: RecordDbData[];
-    G_REPLAY_STR_RECORDS: string;
-    G_REPLAY_DATA: ReplayData;
+    G_REPLAY_RECORDS: RecordData[];
 
     rtScreenshot: (info: any) => Promise<any>;
 

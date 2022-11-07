@@ -1,3 +1,7 @@
+// const { Polly } = require('@pollyjs/core');
+// const XHRAdapter = require('@pollyjs/adapter-xhr');
+// const FetchAdapter = require('@pollyjs/adapter-fetch');
+// const LocalStoragePersister = require('@pollyjs/persister-local-storage');
 import { Polly } from '@pollyjs/core';
 import XHRAdapter from '@pollyjs/adapter-xhr';
 import FetchAdapter from '@pollyjs/adapter-fetch';
@@ -30,10 +34,12 @@ export function stubHttp(isReplay = false, requestMock?: string[], restore?: str
   const { server } = polly;
   server
     .any()
-    .filter((req) => {
+    .filter((req: { url: string }) => {
       if (requestMock) {
         requestMock = requestMock.map((url) => url.replace(protocolReg, '$1'));
-        return !multimatch([req.url.replace(protocolReg, '')], requestMock).length;
+        const flag = !multimatch([req.url.replace(protocolReg, '')], requestMock).length;
+        console.log(`${req.url} is ${flag ? 'not' : ''} match:`);
+        return flag;
       }
       return true;
     })

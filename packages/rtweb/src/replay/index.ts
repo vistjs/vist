@@ -1,18 +1,18 @@
 import { logError, logInfo, isDev, removeGlobalVariables, delay, tempEmptyFn, FMP, observer } from '../utils';
 import type { ReplayOptions, RecordData, ReplayInternalOptions } from '../types';
-import { PlayerEventTypes } from '../constants';
 import { PlayerComponent } from './player';
-import { Pluginable } from './pluginable';
+import { Pluginable, HooksType } from './pluginable';
 import { Store } from './stores';
 import { reaction } from 'mobx';
 
 const defaultReplayOptions = {
   autoplay: true,
   target: window,
+  context: window,
 };
 
 export class Player {
-  on: (key: PlayerEventTypes, fn: Function) => void = tempEmptyFn;
+  on: (key: HooksType, fn: (player?: any, record?: any, options?: any) => any) => void = tempEmptyFn;
   destroy: () => void = tempEmptyFn;
   [key: string]: any;
   constructor(options?: ReplayOptions) {
@@ -78,7 +78,7 @@ export class PlayerModule extends Pluginable {
       destroyStore: this.destroyStore,
       ...defaultReplayOptions,
       ...options,
-    } as ReplayInternalOptions;
+    };
 
     this.options = opts;
     Store.playerStore.setOptions(opts);
@@ -87,7 +87,7 @@ export class PlayerModule extends Pluginable {
   private async initData() {
     const opts = this.options;
     const records = await this.getRecords(opts);
-    window.G_REPLAY_RECORDS = records;
+    opts.context.G_REPLAY_RECORDS = records;
     Store.replayDataStore.updateData({ records });
   }
 
@@ -122,14 +122,14 @@ export class PlayerModule extends Pluginable {
     });
   }
 
-  async destroy(opts: { removeDOM: boolean } = { removeDOM: true }) {
+  async destroy() {
     this.destroyStore.forEach((un) => un());
     observer.destroy();
     await delay(0);
     removeGlobalVariables();
   }
 
-  public on(key: PlayerEventTypes, fn: Function) {
-    observer.on(key, fn);
+  public on(key: HooksType, fn: (player?: any, record?: any, options?: any) => any) {
+    this.plugin(key, fn);
   }
 }

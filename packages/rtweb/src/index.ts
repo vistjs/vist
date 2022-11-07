@@ -2,9 +2,9 @@ import './utils/polyfills';
 import { Recorder } from './record';
 import { Player } from './replay';
 import { SavePlugin } from './record/savePlugin';
-import { getUrlParam, getRecordsFromDB, stubHttp } from './utils';
+import { getUrlParam, getRecordsFromDB, stubHttp, setUrlParam } from './utils';
 import { LOCAL_DB_NAME, PLAY_PARAM } from './constants';
-export { Recorder, Player, getUrlParam };
+export { Recorder, Player };
 
 type OPTIONS = {
   dbName?: string;
@@ -19,8 +19,8 @@ type OPTIONS = {
 };
 
 export default class Rtweb {
-  recorder: Recorder;
-  player: Player;
+  recorder!: Recorder;
+  player!: Player;
   constructor(options?: OPTIONS) {
     this.init(options);
   }
@@ -30,18 +30,32 @@ export default class Rtweb {
     const playParam = options?.playParam || PLAY_PARAM;
     const recordId = getUrlParam(playParam);
     const recordInfo = getUrlParam('recordInfo');
+    const replaySoon = getUrlParam('replaySoon');
+
     let steps: any;
     let mocks: any;
     if (window.rtFetchRecords) {
       [steps, mocks] = await window.rtFetchRecords();
     }
-    const isReplay = recordId || steps;
+    const isReplay = recordId || steps || replaySoon;
     const requestMock =
       options?.requestMock && options.remoteUrl
         ? [...options?.requestMock, `!${options.remoteUrl}/api/open/case`]
         : options?.requestMock;
     const polly = stubHttp(isReplay, requestMock, mocks);
-    if (isReplay) {
+    if (replaySoon) {
+      this.player = new Player({
+        receiver: async (cb) => {
+          getRecordsFromDB(dbName).then((res: any) => {
+            console.log('res', res);
+            cb(res.steps);
+          });
+        },
+      });
+      this.player.on('stop', async () => {
+        await polly.stop();
+      });
+    } else if (isReplay) {
       this.player = new Player({
         receiver: async (cb) => {
           if (steps) {
@@ -65,12 +79,12 @@ export default class Rtweb {
                   cb(steps);
                 })
             : getRecordsFromDB(dbName).then((res: any) => {
-                const info = `w${res.w}h${res.h}`;
+                const info = `w${res.width}h${res.height}`;
                 if (recordInfo !== info) {
                   window.open(
-                    `${window.location.href}&recordInfo=${info}`,
+                    setUrlParam('recordInfo', info),
                     'rtwebWindow',
-                    `width=${res.w},height=${res.h}`
+                    `width=${res.width},height=${res.height}`
                   );
                 } else {
                   cb(res.steps);
@@ -78,16 +92,17 @@ export default class Rtweb {
               });
         },
       });
-      this.player.on('stop' as any, async () => {
+      this.player.on('stop', async () => {
         await polly.stop();
       });
     } else {
       this.recorder = new Recorder({
         plugins: [new SavePlugin({ dbName, remoteUrl: options?.remoteUrl, pid: options?.pid })],
       });
-      this.recorder.on('stop' as any, async () => {
+      this.recorder.on('stop', async () => {
         await polly.stop();
       });
+      // after stop, can replay
     }
   }
 }

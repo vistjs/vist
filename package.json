@@ -32,9 +32,9 @@
   "devDependencies": {
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
-    "husky": "^7.0.2",
-    "lint-staged": ">=10",
-    "prettier": "^2.3.2"
+    "husky": "^7.0.4",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1"
   },
   "workspaces": [
     "./packages/*"

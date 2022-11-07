@@ -33,7 +33,7 @@ export class Watcher {
 
   public emitData<T extends RecordType>(
     type: T,
-    record?: RecordData<T>['data'], // data to save in db
+    record: RecordData<T>['data'], // data to save in db
     dom?: RecordData['dom'],
     eventWithTime?: RecordData['eventWithTime'], // origin data from rrweb
     time = getTime(),

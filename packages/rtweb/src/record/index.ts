@@ -1,11 +1,11 @@
 import { watchers } from './watchers';
 import { logError, getTime, tempEmptyFn, tempEmptyPromise, delay, observer } from '../utils';
-import { Pluginable } from './pluginable';
+import { HooksType, Pluginable } from './pluginable';
 import { Watcher } from './watcher';
 import type { RecordData, RecorderMiddleware, RecordInternalOptions, RecordOptions } from '../types';
 import { RecorderEventTypes } from '../constants';
 export class Recorder {
-  on: (key: RecorderEventTypes, fn: Function) => void = tempEmptyFn;
+  on: (key: HooksType, fn: (data: any) => void) => void = tempEmptyFn;
   public startTime!: number;
   public destroyTime!: number;
   public status: RecorderEventTypes = RecorderEventTypes.INIT;
@@ -39,8 +39,8 @@ export class RecorderModule extends Pluginable {
   private watchersInstance = new Map<string, Watcher>();
   private watchesReadyPromise;
   private watcherResolve!: Function;
-  private startTime!: number;
-  private destroyTime!: number;
+  public startTime!: number;
+  public destroyTime!: number;
   public status: RecorderEventTypes = RecorderEventTypes.INIT;
   public options!: RecordInternalOptions;
 
@@ -56,13 +56,13 @@ export class RecorderModule extends Pluginable {
   private init() {
     this.startTime = getTime();
     this.loadPlugins();
-    this.hooks.beforeRun.call(this);
+    this.hooks.beforeRecord.call(this);
     this.record(this.options);
     observer.emit(RecorderEventTypes.RECORD);
-    this.hooks.run.call(this);
+    this.hooks.record.call(this);
   }
 
-  public onData(fn: (data: RecordData, next: () => Promise<void>) => Promise<void>) {
+  public onData(fn: RecorderMiddleware) {
     this.middleware.unshift(fn);
   }
 
@@ -76,7 +76,7 @@ export class RecorderModule extends Pluginable {
       this.destroyTime = ret.lastTime || getTime();
     }
     observer.emit(RecorderEventTypes.STOP);
-    this.hooks.end.call(this);
+    this.hooks.stop.call(this);
   }
 
   private async pause() {
@@ -88,6 +88,7 @@ export class RecorderModule extends Pluginable {
       const lastTime: number | null = null;
       return { lastTime };
     }
+    return void 0;
   }
 
   private async cancelListener() {
@@ -186,7 +187,7 @@ export class RecorderModule extends Pluginable {
     return async () => await fn(data, next);
   }
 
-  public on(key: RecorderEventTypes, fn: Function) {
-    observer.on(key, fn);
+  public on(key: HooksType, fn: (data: any) => void) {
+    this.plugin(key, fn);
   }
 }

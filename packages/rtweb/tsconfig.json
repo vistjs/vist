@@ -1,27 +1,31 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    // "target": "ES2020",
+    //"target": "ES6",
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
+    //"lib": ["es6", "dom"],
     "moduleResolution": "Node",
     "strict": true,
     "sourceMap": true,
-    "outDir": "./lib",
+    "rootDir": "src",
+    "outDir": "./es",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "noEmit": true,
+    "composite": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "declaration": true,
+    "declarationDir": "./es",
+    "emitDeclarationOnly": true,
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["./src"]
