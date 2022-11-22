@@ -12,7 +12,7 @@
         <a-layout-content :style="{ padding: '0 24px', minHeight: '280px' }"> <router-view /> </a-layout-content>
       </a-layout>
     </a-layout-content>
-    <a-layout-footer style="text-align: center"> Ant Design ©2018 Created by Ant UED </a-layout-footer>
+    <a-layout-footer style="text-align: center"> examples ©2022 Created by vistjs </a-layout-footer>
   </a-layout>
 </template>
 

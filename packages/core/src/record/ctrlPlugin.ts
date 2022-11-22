@@ -27,7 +27,10 @@ class HotKeysWatcher extends Watcher {
       }
       if (handler.key === this.options.replayKey) {
         console.log('want to replay');
-        window.location.replace(setUrlParam(recordUrl, 'replaySoon', '1'));
+        recorder.stop();
+        setTimeout(() => {
+          window.location.replace(setUrlParam(recordUrl, 'replaySoon', '1'));
+        }, 200);
       }
       event.preventDefault();
       return false;

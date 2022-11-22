@@ -12,6 +12,7 @@ export interface RecordOptions {
   hotkeys?: {
     stop?: string;
     capture?: string;
+    replay?: string;
   };
 }
 

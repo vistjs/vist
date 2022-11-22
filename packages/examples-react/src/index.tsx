@@ -4,9 +4,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
-import Rtweb from 'rtweb';
+import Vist from '@vistjs/core';
 
-new Rtweb({ remoteUrl: 'http://127.0.0.1:3000', pid: 1, requestMock: ['63459b8739ca915a6903c126.mockapi.io/**'] });
+new Vist({ remoteUrl: 'http://127.0.0.1:3000', pid: 1, requestMock: ['63459b8739ca915a6903c126.mockapi.io/**'] });
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

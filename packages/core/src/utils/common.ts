@@ -107,20 +107,7 @@ export async function delay(t = 200): Promise<void> {
   });
 }
 
-export function logAsciiLogo() {
-  /* eslint-disable */
-  return console.log(
-    `%c
-______ _                _____       _
-|_   _(_)              /  __ \\     | |
-  | |  _ _ __ ___   ___| /  \\/ __ _| |_
-  | | | | '_ \` _ \\ / _ \\ |    / _\` | __|
-  | | | | | | | | |  __/ \\__/\\ (_| | |_
-  \\_/ |_|_| |_| |_|\\___|\\____/\\__,_|\\__|
-    `,
-    'color: #1475b2;'
-  );
-}
+export function logAsciiLogo() {}
 
 export function logBadge(opts: { title: string; content: string; titleColor?: string; backgroundColor?: string }) {
   const { title, content, titleColor, backgroundColor } = opts;
@@ -138,7 +125,7 @@ export function logBadge(opts: { title: string; content: string; titleColor?: st
 export function logInfo() {
   logAsciiLogo();
   logBadge({ title: 'version', content: version });
-  logBadge({ title: 'more info', content: 'github.com/letshare/rtweb' });
+  logBadge({ title: 'more info', content: 'github.com/vistjs/vist' });
 }
 
 export function removeGlobalVariables() {

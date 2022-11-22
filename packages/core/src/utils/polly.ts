@@ -21,7 +21,7 @@ export function stubHttp(isReplay = false, requestMock?: string[], restore?: str
   if (restore) {
     localStorage.setItem(POLLY_DB_NAME, restore);
   }
-  const polly = new Polly('rtweb', {
+  const polly = new Polly('vist', {
     adapters: ['xhr', 'fetch'],
     persister: 'local-storage',
     persisterOptions: {

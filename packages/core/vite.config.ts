@@ -1,7 +1,6 @@
 /** @type {import('vite').UserConfig} */
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
-// import { viteCommonjs } from '@originjs/vite-plugin-commonjs';
 
 export default defineConfig({
   resolve: {
@@ -14,13 +13,12 @@ export default defineConfig({
         '@pollyjs/persister-local-storage/dist/umd/pollyjs-persister-local-storage.js',
     },
   },
-  // plugins: [viteCommonjs()],
   build: {
     target: ['es2020'],
     emptyOutDir: false,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'rtweb',
+      name: 'vist',
       // the proper extensions will be added
       fileName: 'index',
     },
@@ -29,6 +27,9 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
     watch: {},
+  },
+  esbuild: {
+    drop: ['console', 'debugger'],
   },
   optimizeDeps: {
     esbuildOptions: {

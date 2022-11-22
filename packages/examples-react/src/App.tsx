@@ -30,7 +30,7 @@ function Layout() {
       <Content style={{ padding: '0 50px' }}>
         <Outlet></Outlet>
       </Content>
-      <Footer style={{ textAlign: 'center' }}>examples ©2022 Created by rtweb</Footer>
+      <Footer style={{ textAlign: 'center' }}>examples ©2022 Created by vistjs</Footer>
     </Alayout>
   );
 }

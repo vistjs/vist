@@ -1,20 +1,24 @@
 {
   "name": "root",
   "private": true,
-  "description": "record and test the web",
+  "description": "Visual testing tool for web",
   "keywords": [
-    "rtweb",
+    "vist",
     "regression",
     "web",
-    "testing"
+    "vision",
+    "visual",
+    "record",
+    "replay",
+    "test"
   ],
   "author": "letshare <brucecai2012@gmail.com>",
-  "bugs": "https://github.com/letshare/rtweb/issues",
-  "homepage": "https://github.com/letshare/rtweb#readme",
+  "bugs": "https://github.com/vistjs/vist/issues",
+  "homepage": "https://github.com/vistjs/vist#readme",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/letshare/rtweb"
+    "url": "https://github.com/vistjs/vist"
   },
   "scripts": {
     "postinstall": "husky install",

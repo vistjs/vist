@@ -14,11 +14,12 @@ type OPTIONS = {
   hotkeys?: {
     stop?: string;
     capture?: string;
+    replay?: string;
   };
   requestMock?: string[];
 };
 
-export default class Rtweb {
+export default class Vist {
   recorder!: Recorder;
   player!: Player;
   constructor(options?: OPTIONS) {
@@ -81,11 +82,7 @@ export default class Rtweb {
             : getRecordsFromDB(dbName).then((res: any) => {
                 const info = `w${res.width}h${res.height}`;
                 if (recordInfo !== info) {
-                  window.open(
-                    setUrlParam('recordInfo', info),
-                    'rtwebWindow',
-                    `width=${res.width},height=${res.height}`
-                  );
+                  window.open(setUrlParam('recordInfo', info), 'vistWindow', `width=${res.width},height=${res.height}`);
                 } else {
                   cb(res.steps);
                 }
@@ -98,6 +95,7 @@ export default class Rtweb {
     } else {
       this.recorder = new Recorder({
         plugins: [new SavePlugin({ dbName, remoteUrl: options?.remoteUrl, pid: options?.pid })],
+        hotkeys: options?.hotkeys,
       });
       this.recorder.on('stop', async () => {
         await polly.stop();
